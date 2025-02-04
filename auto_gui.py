@@ -36,7 +36,7 @@ class auto_gui_class:
         # 自选
         self._find_click(self.yaml_dict['匹配图片']['自选'])
         # 涨幅
-        x, y = self.image_location(self.yaml_dict['匹配图片']['涨幅'])
+        x, y = self.image_location(self.yaml_dict['匹配图片']['自选_涨幅'])
         if x is None:
             raise
         # 上证指数
@@ -115,9 +115,9 @@ class auto_gui_class:
 
 
 if __name__ == '__main__':
+    # auto_gui_class.screenshot_measure()  # 截图测量
     # logging.basicConfig(filename='log.log', level=logging.INFO, encoding='utf-8',
     #                     format='%(asctime)s | %(levelname)s | %(message)s')
     model = auto_gui_class(yaml_path='config/auto_gui.yaml')
-    model.screenshot_measure()
     model.auto_gui()
     pass
