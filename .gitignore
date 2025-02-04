@@ -1,0 +1,36 @@
+.git
+.run
+.log
+.idea
+.ipynb_checkpoints
+# -------------------------------------------------------------------------------------------------------------------- #
+_.py
+wandb
+__pycache__
+# -------------------------------------------------------------------------------------------------------------------- #
+*.jpg
+*.png
+*.txt
+*.csv
+*.xml
+*.xlsx
+*.json
+*.html
+*.pt
+*.pth
+*.bin
+*.trt
+*.onnx
+# -------------------------------------------------------------------------------------------------------------------- #
+economy/model.yaml
+economy/remove.yaml
+economy/data_screen.yaml
+economy/input_column.txt
+economy/tushare/number.yaml
+economy/tushare/reserve.yaml
+# -------------------------------------------------------------------------------------------------------------------- #
+!dataset/ETTh1.csv
+!dataset/ETTh2.csv
+!dataset/ETTm1.csv
+!dataset/ETTm2.csv
+!dataset/sin_cos.csv
