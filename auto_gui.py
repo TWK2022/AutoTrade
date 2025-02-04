@@ -35,31 +35,12 @@ class auto_gui_class:
         self._find_click(self.yaml_dict['匹配图片']['页面放大'])
         # 自选
         self._find_click(self.yaml_dict['匹配图片']['自选'])
+        # 涨幅
+        x, y = self.image_location(self.yaml_dict['匹配图片']['涨幅'])
+        if x is None:
+            raise
         # 上证指数
         self._find_click(self.yaml_dict['匹配图片']['上证指数'])
-        # 输入
-        x, y = self.image_location(self.yaml_dict['匹配图片']['搜索'])
-        pyautogui.moveTo(x + 0.05 * self.w, y, duration=0)
-        self.click_delete_input('日历')
-        # 搜索
-        pyautogui.moveTo(x, y, duration=0)
-        pyautogui.click(button='left', clicks=1, interval=0)
-        time.sleep(0.2)
-        # 选项1
-        self._find_click(self.yaml_dict['匹配图片']['选项1'])
-        if x is None:
-            raise
-        # 选项2
-        x, y = self.image_location(self.yaml_dict['匹配图片']['选项2'], retry=5)
-        if x is None:
-            raise
-        image = pyautogui.screenshot('save.jpg', region=(int(x - 0.01 * self.w), int(y + 0.01 * self.h),
-                                                         int(0.03 * self.w), int(0.015 * self.h)))
-        # ocr识别
-        result = self.ocr.ocr(np.array(image))
-        print(result)
-        # 关闭软件
-        # self._find_click(self.yaml_dict['匹配图片']['页面关闭'])
 
     def _state_judge(self):  # 检查软件状态
         # 桌面
@@ -137,5 +118,6 @@ if __name__ == '__main__':
     # logging.basicConfig(filename='log.log', level=logging.INFO, encoding='utf-8',
     #                     format='%(asctime)s | %(levelname)s | %(message)s')
     model = auto_gui_class(yaml_path='config/auto_gui.yaml')
+    model.screenshot_measure()
     model.auto_gui()
     pass
