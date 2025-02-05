@@ -18,21 +18,17 @@ class auto_gui_class:
         self.w, self.h = pyautogui.size()  # 屏幕大小
         self.ocr = ocr_class()
         # 常量
-        self.axis = {}
-        self.axis_x = {}
+        self.axis = {}  # 中心坐标
+        self.screenshot = {}  # 截图坐标
+        # 变量
+        self.value = {'涨幅': {}}
 
     def auto_gui(self):
         logging.info('--------------------auto_gui--------------------')
         # 初始化
         self.start()
-        # 涨幅
-        x, y = self.image_location(self.yaml_dict['匹配图片']['自选_涨幅'])
-        if x is None:
-            raise
-        self.axis_x['自选_涨幅'] = x
-        value = self.zi_xuan_zhang_fu(name='上证指数')  # 上证指数
-        value = self.zi_xuan_zhang_fu(name='微盘股')  # 微盘股
-        value = self.zi_xuan_zhang_fu(name='国债指数')  # 国债指数
+        # 获取自选中股票的涨幅
+        self.zi_xuan_zhang_fu()
         return
 
     def start(self):
@@ -52,14 +48,27 @@ class auto_gui_class:
         # 自选
         self._find_click(self.yaml_dict['匹配图片']['自选'])
 
-    def zi_xuan_zhang_fu(self, name):  # 自选涨幅
-        x, y = self.image_location(self.yaml_dict['匹配图片'][name])
-        if x is None:
-            raise
-        pyautogui.moveTo(x, y, duration=0)
-        self.axis[f'自选_{name}'] = (int(self.axis_x['自选_涨幅'] - 0.025 * self.w), int(y - 0.01 * self.h),
-                                   int(0.04 * self.w), int(0.02 * self.h))
-        image = pyautogui.screenshot(region=self.axis[f'自选_{name}'])
+    def zi_xuan_zhang_fu(self):  # 获取自选中股票的涨幅
+        if self.axis.get('自选_涨幅') is None:
+            x, y = self.image_location(self.yaml_dict['匹配图片']['自选_涨幅'])
+            if x is None:
+                raise
+            self.axis['自选_涨幅'] = (x, y)
+        self.value['涨幅']['上证指数'] = self._zi_xuan_zhang_fu(name='上证指数')  # 上证指数
+        self.value['涨幅']['微盘股'] = self._zi_xuan_zhang_fu(name='微盘股')  # 微盘股
+        self.value['涨幅']['国债指数'] = self._zi_xuan_zhang_fu(name='国债指数')  # 国债指数
+        self.value['涨幅']['证券'] = self._zi_xuan_zhang_fu(name='证券')  # 证券
+
+    def _zi_xuan_zhang_fu(self, name):  # 获取自选中个股的涨幅
+        if self.axis.get(f'自选_{name}') is None:
+            x, y = self.image_location(self.yaml_dict['匹配图片'][name])
+            if x is None:
+                raise
+            self.axis[f'自选_{name}'] = (x, y)
+            self.screenshot[f'自选_{name}_涨幅'] = (int(self.axis['自选_涨幅'][0] - 0.025 * self.w),
+                                                int(y - 0.01 * self.h), int(0.04 * self.w), int(0.02 * self.h))
+        pyautogui.moveTo(self.axis[f'自选_{name}'][0], self.axis[f'自选_{name}'][1], duration=0)  # 可视化
+        image = pyautogui.screenshot(region=self.screenshot[f'自选_{name}_涨幅'])
         value = self.ocr.ocr(np.array(image))
         return value
 
