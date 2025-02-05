@@ -61,6 +61,6 @@ class ocr_class:
 # -------------------------------------------------------------------------------------------------------------------- #
 if __name__ == '__main__':
     model = ocr_class(args)
-    image = cv2.imread('image/img.png')
+    image = cv2.imread('image/demo.png')
     result = model.ocr(image)
     print(result)
