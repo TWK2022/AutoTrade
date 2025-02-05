@@ -15,11 +15,27 @@ class auto_gui_class:
     def __init__(self, yaml_path):
         with open(yaml_path, 'r', encoding='utf-8') as f:  # 配置文件
             self.yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
-        self.h, self.w = pyautogui.size()  # 屏幕大小
+        self.w, self.h = pyautogui.size()  # 屏幕大小
         self.ocr = ocr_class()
+        # 常量
+        self.axis = {}
+        self.axis_x = {}
 
     def auto_gui(self):
         logging.info('--------------------auto_gui--------------------')
+        # 初始化
+        self.start()
+        # 涨幅
+        x, y = self.image_location(self.yaml_dict['匹配图片']['自选_涨幅'])
+        if x is None:
+            raise
+        self.axis_x['自选_涨幅'] = x
+        value = self.zi_xuan_zhang_fu(name='上证指数')  # 上证指数
+        value = self.zi_xuan_zhang_fu(name='微盘股')  # 微盘股
+        value = self.zi_xuan_zhang_fu(name='国债指数')  # 国债指数
+        return
+
+    def start(self):
         # 桌面
         pyautogui.moveTo(1, 1, duration=0)
         pyautogui.hotkey('win', 'd')
@@ -35,31 +51,17 @@ class auto_gui_class:
         self._find_click(self.yaml_dict['匹配图片']['页面放大'])
         # 自选
         self._find_click(self.yaml_dict['匹配图片']['自选'])
-        # 涨幅
-        x, y = self.image_location(self.yaml_dict['匹配图片']['自选_涨幅'])
+
+    def zi_xuan_zhang_fu(self, name):  # 自选涨幅
+        x, y = self.image_location(self.yaml_dict['匹配图片'][name])
         if x is None:
             raise
-        # 上证指数
-        self._find_click(self.yaml_dict['匹配图片']['上证指数'])
-
-    def _state_judge(self):  # 检查软件状态
-        # 桌面
-        pyautogui.moveTo(1, 1, duration=0)
-        pyautogui.hotkey('win', 'd')
-        time.sleep(0.2)
-        # 检查软件状态
-        try:  # 已经打开
-            self._find_click(self.yaml_dict['匹配图片']['软件_任务栏'], click=2)
-        except:  # 重新启动
-            self._find_click(self.yaml_dict['匹配图片']['软件'])
-        # 位于第1个页面
-        x, y = self.image_location(path1, retry=3)
-        if x is not None:
-            return None
-        # 位于第2个页面
-        x, y = self.image_location(path2, retry=3)
-        if x is not None:
-            return None
+        pyautogui.moveTo(x, y, duration=0)
+        self.axis[f'自选_{name}'] = (int(self.axis_x['自选_涨幅'] - 0.025 * self.w), int(y - 0.01 * self.h),
+                                   int(0.04 * self.w), int(0.02 * self.h))
+        image = pyautogui.screenshot(region=self.axis[f'自选_{name}'])
+        value = self.ocr.ocr(np.array(image))
+        return value
 
     def _find_click(self, image_path, click=1, retry=3):  # 匹配图片并点击
         x, y = self.image_location(image_path, retry=retry)
@@ -109,15 +111,20 @@ class auto_gui_class:
         plt.figure(figsize=(20, 20))
         plt.imshow(image)
         plt.grid()
-        plt.gca().xaxis.set_major_locator(MultipleLocator(50))
-        plt.gca().yaxis.set_major_locator(MultipleLocator(50))
+        plt.gca().xaxis.set_major_locator(MultipleLocator(20))
+        plt.gca().yaxis.set_major_locator(MultipleLocator(20))
+        plt.show()
+
+    @staticmethod
+    def draw_image(image):
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(20, 20))
+        plt.imshow(image)
         plt.show()
 
 
 if __name__ == '__main__':
     # auto_gui_class.screenshot_measure()  # 截图测量
-    # logging.basicConfig(filename='log.log', level=logging.INFO, encoding='utf-8',
-    #                     format='%(asctime)s | %(levelname)s | %(message)s')
     model = auto_gui_class(yaml_path='config/auto_gui.yaml')
     model.auto_gui()
     pass
