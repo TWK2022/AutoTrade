@@ -14,3 +14,5 @@
   证券: 'match_image/股票/证券.png'
 分时:
   macdfs: 'match_image/分时/macdfs.png'
+  macdfs截图: [0.04,-0.01,0.18,0.02]
+  macdfs_regex: 'DIFF\D+([+-]\d+.\d+)\D+([+-]\d+.\d+)\D+([+-]\d+.\d+)'
