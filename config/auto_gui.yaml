@@ -3,18 +3,10 @@
   同花顺_任务栏: 'match_image/桌面/同花顺_任务栏.png'
 首页:
   页面放大: 'match_image/首页/页面放大.png'
+  收起推荐: 'match_image/首页/收起推荐.png'
   自选: 'match_image/首页/自选.png'
 自选:
-  涨幅: 'match_image/自选/涨幅.png'
-  涨幅截图: [-0.025,-0.01,0.04,0.02]
-股票:
-  上证指数: 'match_image/股票/上证指数.png'
-  微盘股: 'match_image/股票/微盘股.png'
-  国债指数: 'match_image/股票/国债指数.png'
-  证券: 'match_image/股票/证券.png'
-分时:
-  macdfs: 'match_image/分时/macdfs.png'
-  macdfs截图: [0.04,-0.01,0.18,0.02]
-  macdfs_regex: 'DIFF\D+([+-]\d+.\d+)\D+([+-]\d+.\d+)\D+([+-]\d+.\d+)'
+  我的板块: 'match_image/自选/我的板块.png'
+  监测: 'match_image/自选/监测.png'
 微信:
   微信_任务栏: 'match_image/微信/微信_任务栏.png'

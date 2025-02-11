@@ -35,117 +35,63 @@ class auto_gui_class:
 
     def auto_gui(self, name_list=None):
         logging.info('--------------------auto_gui--------------------')
-        # 监测股票
-        self.name_list = name_list if name_list else self.name_list
         # 初始化
         self.init()
-        # 获取自选中股票分时的macdfs
-        self._fenshi_macdfs()
-        # 获取自选中股票的涨幅
-        self._zixuan_zhangfu()
-        # 分析
-        self._analysis()
+        # 获取监测股票的信息
+        self._monitor_data()
         return
 
     def init(self):
-        # 初始值
-        for name in self.name_list:
-            self.result[name] = {'diff': [0], 'dea': [0], 'macdfs': [0], '涨幅': [0]}
-        # 桌面
+        # 回到桌面
         pyautogui.moveTo(1, 1, duration=0)
         pyautogui.hotkey('win', 'd')
         time.sleep(0.2)
         # 打开软件
-        x, y, w, h = self.image_location(self.yaml_dict['桌面']['同花顺_任务栏'])
-        if x is not None:  # 已存在，直接打开
-            pyautogui.moveTo(x, y, duration=0)
-            pyautogui.click(button='left', clicks=2, interval=0)
-            time.sleep(0.2)
-        else:  # 不存在，重新打开
-            x, y, w, h = self.image_location(self.yaml_dict['桌面']['同花顺_桌面'])
-            assert x is not None
-            pyautogui.moveTo(x, y, duration=0)
-            pyautogui.click(button='left', clicks=2, interval=0)
+        try:  # 已存在，直接打开
+            self._find_click(self.yaml_dict['桌面']['同花顺_任务栏'], click=1)
+        except:  # 不存在，重新打开
+            self._find_click(self.yaml_dict['桌面']['同花顺_桌面'], click=2)
             time.sleep(3)  # 首次打开可能比较慢
             x, y, w, h = self.image_location(self.yaml_dict['首页']['自选'], retry=30)  # 检测是否打开
             assert x is not None
-        # 任务栏位置
-        x, y, w, h = self.image_location(self.yaml_dict['桌面']['同花顺_任务栏'])
-        self.axis['桌面']['同花顺_任务栏'] = (x, y)
         # 放大页面
-        x, y, w, h = self.image_location(self.yaml_dict['首页']['页面放大'])
-        if x is not None:
-            pyautogui.moveTo(x, y, duration=0)
-            pyautogui.click(button='left', clicks=1, interval=0)
-            time.sleep(0.2)
-        # 首页
-        x, y, w, h = self.image_location(self.yaml_dict['首页']['自选'])
-        self.axis['首页']['自选'] = (x, y)
-        pyautogui.moveTo(x, y, duration=0)
-        pyautogui.click(button='left', clicks=1, interval=0)
-        time.sleep(0.2)
+        try:
+            self._find_click(self.yaml_dict['首页']['页面放大'], click=1, retry=2)
+        except:
+            pass
+        # 收起推荐
+        try:
+            self._find_click(self.yaml_dict['首页']['收起推荐'], click=1, retry=2)
+        except:
+            pass
         # 自选
-        x, y, w, h = self.image_location(self.yaml_dict['自选']['涨幅'])
-        assert x is not None
-        self.axis['自选']['涨幅'] = (x, y)
-        # 自选_股票
-        for name in self.name_list:
-            x, y, w, h = self.image_location(self.yaml_dict['股票'][f'{name}'])
-            assert x is not None
-            self.axis['自选'][f'{name}'] = (x, y)
-            a, b, c, d = self.yaml_dict['自选']['涨幅截图']
-            self.screenshot['自选'][f'{name}_涨幅'] = (int(self.axis['自选']['涨幅'][0] + a * self.w),
-                                                   int(y + b * self.h), int(c * self.w), int(d * self.h))
-        # macdfs
-        x, y = self.axis['自选'][self.name_list[0]]
-        pyautogui.moveTo(x, y, duration=0)
-        pyautogui.click(button='left', clicks=2, interval=0)
-        time.sleep(0.2)
-        x, y, w, h = self.image_location(self.yaml_dict['分时']['macdfs'])
-        self.axis['分时']['macdfs'] = (x, y)
-        assert x is not None
-        a, b, c, d = self.yaml_dict['分时']['macdfs截图']
-        self.screenshot['分时'][f'macdfs'] = (int(self.axis['分时']['macdfs'][0] + a * self.w),
-                                            int(y + b * self.h), int(c * self.w), int(d * self.h))
+        x, y, w, h = self._find_click(self.yaml_dict['首页']['自选'], click=1)
+        self.axis['首页']['自选'] = (x, y)
+        # 我的板块
+        x, y, w, h = self._find_click(self.yaml_dict['自选']['我的板块'], click=1)
+        self.axis['自选']['我的板块'] = (x, y)
+        # 滚动鼠标
+        pyautogui.moveTo(x, int(y + 0.1 * self.h), duration=0)
+        for i in range(10):
+            time.sleep(0.1)
+            pyautogui.scroll(200)
+        # 监测
+        x, y, w, h = self._find_click(self.yaml_dict['自选']['监测'], click=1)
+        self.axis['自选']['监测'] = (x, y)
 
-    def _fenshi_macdfs(self):  # 获取自选中股票分时的macdfs
-        for name in self.name_list:
-            x, y = self.axis['首页']['自选']
-            pyautogui.moveTo(x, y, duration=0)
-            pyautogui.click(button='left', clicks=1, interval=0)
-            time.sleep(0.2)
-            x, y = self.axis['自选'][name]
-            pyautogui.moveTo(x, y, duration=0)
-            pyautogui.click(button='left', clicks=2, interval=0)
-            time.sleep(0.2)
-            x1, y1, w, h = self.screenshot['分时']['macdfs']
-            # 截图文字检测
-            image = pyautogui.screenshot(region=(x1, y1, w, h))
-            value = self.ocr.ocr(np.array(image))
-            # 正则提取
-            result = self.regex['分时']['macdfs_regex'].search(value)
-            self.result[name]['diff'].append(self.str_deal(result.group(1)))
-            self.result[name]['dea'].append(self.str_deal(result.group(2)))
-            self.result[name]['macdfs'].append(self.str_deal(result.group(3)))
-            # 可视化
-            pyautogui.moveTo(x1 + w / 2, y1 + h / 2, duration=0)
-
-    def _zixuan_zhangfu(self):  # 获取自选中股票的涨幅
-        x, y = self.axis['首页']['自选']
-        pyautogui.moveTo(x, y, duration=0)
-        pyautogui.click(button='left', clicks=1, interval=0)
-        time.sleep(0.2)
-        for name in self.name_list:
-            x1, y1, w, h = self.screenshot['自选'][f'{name}_涨幅']
-            # 截图文字检测
-            image = pyautogui.screenshot(region=(x1, y1, w, h))
-            value = self.str_deal(self.ocr.ocr(np.array(image)))
-            self.result[name]['涨幅'].append(value)
-            # 可视化
-            pyautogui.moveTo(x1 + w / 2, y1 + h / 2, duration=0)
+    def _monitor_data(self):  # 获取监测股票的信息
+        number = 10
+        image = pyautogui.screenshot(region=(int(0.27 * self.w), int(0.13 * self.h),
+                                             int(0.3 * self.w), int(number * 0.025 * self.h)))
+        image = np.array(image)
+        h, w, _ = image.shape
+        for i in range(number):
+            str_ = self.ocr.ocr(image[i * h // 10:(i + 1) * h // 10])
+            print(str_)
+        # self.draw_image(image)
 
     def _analysis(self):
-        message = '1'
+        message = ''
         for name in self.name_list:
             # macdfs
             diff = self.result[name]['diff']
@@ -171,6 +117,14 @@ class auto_gui_class:
             pyautogui.moveTo(x, y, duration=0)
             pyautogui.click(button='left', clicks=1, interval=0)
             time.sleep(0.2)
+
+    def _find_click(self, image, click=1, retry=10):
+        x, y, w, h = self.image_location(image, retry=retry)
+        assert x is not None
+        pyautogui.moveTo(x, y, duration=0)
+        pyautogui.click(button='left', clicks=click, interval=0)
+        time.sleep(0.2)
+        return x, y, w, h
 
     @staticmethod
     def image_location(image_path, confidence=0.8, retry=10):  # 匹配图片+得到位置坐标
