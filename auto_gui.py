@@ -37,6 +37,7 @@ class auto_gui_class:
         logging.info('--------------------auto_gui--------------------')
         # 初始化
         self._init()
+        time.sleep(1)
         for i in range(100):
             # 获取监测股票的信息
             self._monitor_data()
@@ -103,7 +104,8 @@ class auto_gui_class:
                 break
             name = value.group(1)
             if self.result.get(name) is None:
-                self.result[name] = {'涨幅': [], 'diff': [], 'dea': []}
+                self.result[name] = {'状态': '上涨', '涨幅': [], 'diff': [], 'dea': []}
+                self.result[name]['状态'] = '上涨' if self.str_to_int(value.group(2)) >= 0 else '下降'
             self.result[name]['涨幅'].append(self.str_to_int(value.group(2)))
             self.result[name]['diff'].append(self.str_to_int(value.group(3)))
             self.result[name]['dea'].append(self.str_to_int(value.group(4)))
@@ -112,11 +114,20 @@ class auto_gui_class:
         macdfs_scale = 0.9  # 在满足条件前一点就触发监测
         message = ''  # 监测信息
         for name in self.result.keys():
+            if len(self.result[name]['涨幅']) < 3:  # 数据太少跳过
+                continue
+            # 涨幅
+            value = self.result[name]['涨幅']
+            state = self.result[name]['状态']
+            if state == '上涨' and value[-3] > value[-2] > value[-1]:  # 回落
+                self.result[name]['状态'] = '下降'  # 更新状态
+                message += f'\n{name}：下降'
+            elif state == '下降' and value[-3] < value[-2] < value[-1]:
+                self.result[name]['状态'] = '上涨'  # 更新状态
+                message += f'\n{name}：上涨'
             # macdfs
             diff = self.result[name]['diff']
             dea = self.result[name]['dea']
-            if len(diff) < 2:
-                continue
             if diff[-2] < macdfs_scale * dea[-2] and diff[-1] > macdfs_scale * dea[-1]:  # macdfs变红
                 message += f'\n{name}：macdfs变红'
             elif diff[-2] > macdfs_scale * dea[-2] and diff[-1] < macdfs_scale * dea[-1]:  # macdfs变绿
