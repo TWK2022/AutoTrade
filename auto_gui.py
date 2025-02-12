@@ -123,7 +123,7 @@ class auto_gui_class:
                 message += f'\n{name}：macdfs绿'
         if message:  # 需要发消息
             # 复制
-            pyperclip.copy(f'监测信息:{message}')
+            pyperclip.copy(f'监测信息：{message}')
             # 打开微信
             x, y, w, h = self.image_location(self.yaml_dict['微信']['微信_任务栏'])
             assert x is not None
