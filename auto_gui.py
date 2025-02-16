@@ -46,7 +46,7 @@ class auto_gui_class:
         # 结果
         self.result = {}
 
-    def auto_gui(self, time_interval=3, interval=0.1):
+    def auto_gui(self, time_interval=5, interval=0.2):
         '''
             time_interval: 获取和监测数据的最小时间间隔(系统运行需要一定时间)
             interval: 所有鼠标操作后的时间间隔
@@ -63,11 +63,11 @@ class auto_gui_class:
                     self.time_afternoon_open < time_now < self.time_afternoon_close:
                 start_time = time.time()
                 # 获取监测股票的信息
-                self._monitor_data()
+                self._get_data()
                 # 分析股票信息
                 self._analysis()
                 # 移动鼠标防止息屏
-                pyautogui.moveTo(int(np.random.randint(1, 5, 1)), int(np.random.randint(1, 7, 1)))
+                pyautogui.moveTo(int(np.random.randint(1, int(0.5 * self.w), 1)), 5)
                 # 间隔
                 end_time = time.time()
                 # print(f'|时间：{end_time - start_time:.4f}|')
@@ -126,7 +126,7 @@ class auto_gui_class:
         assert x is not None
         self.axis['微信']['微信_任务栏'] = (x, y)
 
-    def _monitor_data(self, number=20):  # 获取监测股票的信息
+    def _get_data(self, number=20):  # 获取监测股票的信息
         x1_scale = 0.27  # 截图左上角x坐标
         y1_scale = 0.13  # 截图左上角y坐标
         w_scale = 0.3  # 截图w长度
@@ -146,13 +146,11 @@ class auto_gui_class:
             name = value.group(1)
             if self.result.get(name) is None:
                 self.result[name] = {'状态': '', '涨幅': [], 'diff': [], 'dea': []}
-                self.result[name]['状态'] = '上涨' if self.str_to_int(value.group(2)) >= 0 else '下降'
             self.result[name]['涨幅'].append(self.str_to_int(value.group(2)))
             self.result[name]['diff'].append(self.str_to_int(value.group(3)))
             self.result[name]['dea'].append(self.str_to_int(value.group(4)))
 
     def _analysis(self):
-        macdfs_scale = 0.99  # 在满足条件前一点就触发监测
         message = ''  # 监测信息
         for name in self.result.keys():
             if len(self.result[name]['涨幅']) < 3:  # 数据太少跳过
@@ -160,19 +158,20 @@ class auto_gui_class:
             # 涨幅
             value = self.result[name]['涨幅']
             state = self.result[name]['状态']
-            if state != '涨停' and value[-1] > 9.99:
+            if state != '涨停' and value[-1] > 9.96:
                 self.result[name]['状态'] = '涨停'
                 message += f'{name}：涨停\n'
             elif state == '涨停' and value[-1] < value[-2]:
                 self.result[name]['状态'] = '炸板'
                 message += f'{name}：炸板\n'
             # macdfs
+            macdfs_scale = 0.99  # 在满足条件前一点就触发监测
             diff = self.result[name]['diff']
             dea = self.result[name]['dea']
             if diff[-2] < macdfs_scale * dea[-2] and diff[-1] > macdfs_scale * dea[-1]:  # macdfs变红
-                message += f'{name}：macdfs变红\n'
+                message += f'{name}：macdfs买点\n'
             elif diff[-2] > macdfs_scale * dea[-2] and diff[-1] < macdfs_scale * dea[-1]:  # macdfs变绿
-                message += f'{name}：macdfs变绿\n'
+                message += f'{name}：macdfs卖点\n'
         if message:  # 需要发消息
             # 复制
             pyperclip.copy(message.strip())
