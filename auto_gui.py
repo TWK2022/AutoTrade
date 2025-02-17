@@ -23,7 +23,7 @@ class auto_gui_class:
         # 屏幕大小
         self.w, self.h = pyautogui.size()
         # 所有鼠标操作后的时间间隔
-        self.interval = 0
+        self.interval = 0.1
         # 特定时间
         date = datetime.datetime.now().date()
         self.time_start = datetime.datetime.combine(date, datetime.time(9, 15, 00))  # 集合竞价时间
@@ -47,15 +47,13 @@ class auto_gui_class:
         # 结果
         self.result = {}
 
-    def auto_gui(self, time_interval=5, interval=0.2):
+    def auto_gui(self, time_interval=10):
         '''
             time_interval: 获取和监测数据的最小时间间隔(系统运行需要一定时间)
-            interval: 所有鼠标操作后的时间间隔
         '''
         logging.info('--------------------auto_gui--------------------')
         # 初始化
         ctypes.windll.kernel32.SetThreadExecutionState(0x80000000 | 0x00000001 | 0x00000002)  # 防止息屏，程序结束后失效
-        self.interval = interval
         self._init()
         # 执行任务
         while True:
@@ -83,8 +81,8 @@ class auto_gui_class:
 
     def _init(self):
         # 回到桌面
-        pyautogui.moveTo(1, 1, duration=0)
         pyautogui.hotkey('win', 'd')
+        pyautogui.moveTo(1, 1, duration=0)
         time.sleep(0.5)
         # 打开软件
         try:  # 已存在，直接打开
@@ -107,8 +105,12 @@ class auto_gui_class:
             self._find_and_click(self.yaml_dict['首页']['收起推荐'], click=1, retry=2)
         except:
             pass
+        # 返回
+        x, y, w, h = self._find_and_click(self.yaml_dict['首页']['返回'], click=2)
+        assert x is not None
+        self.axis['首页']['返回'] = (x, y)
         # 自选
-        x, y, w, h = self._find_and_click(self.yaml_dict['首页']['自选'], click=1)
+        x, y, w, h = self._find_and_click(self.yaml_dict['首页']['自选'], click=2)
         self.axis['首页']['自选'] = (x, y)
         # 我的板块
         x, y, w, h = self._find_and_click(self.yaml_dict['自选']['我的板块'], click=1)
@@ -121,33 +123,81 @@ class auto_gui_class:
         # 监测
         x, y, w, h = self._find_and_click(self.yaml_dict['自选']['监测'], click=1)
         self.axis['自选']['监测'] = (x, y)
+        # 多股同列
+        pyautogui.hotkey('ctrl', 'l', interval=0)
+        # 上一页
+        x, y, w, h = self.image_location(self.yaml_dict['多股同列']['上一页'])
+        assert x is not None
+        self.axis['多股同列']['上一页'] = (x, y)
+        pyautogui.moveTo(x, y, duration=0)
+        # 下一页
+        x, y, w, h = self.image_location(self.yaml_dict['多股同列']['下一页'])
+        assert x is not None
+        self.axis['多股同列']['下一页'] = (x, y)
+        pyautogui.moveTo(x, y, duration=0)
         # 微信
         x, y, w, h = self.image_location(self.yaml_dict['微信']['微信_任务栏'])
         assert x is not None
         self.axis['微信']['微信_任务栏'] = (x, y)
 
-    def _get_data(self, number=20):  # 获取监测股票的信息
-        x1_scale = 0.27  # 截图左上角x坐标
-        y1_scale = 0.13  # 截图左上角y坐标
-        w_scale = 0.3  # 截图w长度
-        h_scale = 0.025  # 每个数据的截图h长度
-        image = pyautogui.screenshot(region=(int(x1_scale * self.w), int(y1_scale * self.h),
-                                             int(w_scale * self.w), int(number * h_scale * self.h)))
-        image = np.array(image)
+    def _get_data(self):  # 获取数据
+        # 涨幅截图坐标
+        x1 = int(0.013 * self.w)
+        y1 = int(0.12 * self.h)
+        # 涨幅截图长度
+        w = int(0.3 * self.w)
+        h = int(0.03 * self.h)
+        # macdfs截图坐标
+        x1_ = int(0.021 * self.w)
+        y1_ = int(0.454 * self.h)
+        # macdfs截图长度
+        w_ = int(0.03 * self.w)
+        h_ = int(0.02 * self.h)
+        # 间隔
+        w_add = int(0.3292 * self.w)
+        y_add = int(0.395 * self.h)
+        # 刷新多股同列(刷新后增删股票不会影响)
+        x, y = self.axis['首页']['返回']
+        pyautogui.moveTo(x, y, duration=0)
+        pyautogui.click(x, y, clicks=1, interval=0)
+        pyautogui.hotkey('ctrl', 'l', interval=0)
+        time.sleep(0.2)
+        # 页数
+        x, y = self.axis['多股同列']['下一页']
+        pyautogui.moveTo(x, y, duration=0)
+        image = np.array(pyautogui.screenshot(region=(int(x + 0.02 * self.w), int(y - 0.01 * self.h),
+                                                      int(0.04 * self.w), int(0.025 * self.h))))
         # self.draw_image(image)
-        h, w, _ = image.shape
-        for index in range(number):
-            str_ = self.ocr.ocr(image[index * h // number:(index + 1) * h // number])
-            value = self.regex['监测'].search(str_)
-            if value is None:
-                if index == 0:
-                    print('! 未检测到任何数据 !')
-                break
-            name = value.group(1)
-            if self.result.get(name) is None:
-                self.result[name] = {'状态': '', '涨幅': [], 'macdfs': []}
-            self.result[name]['涨幅'].append(self.str_to_int(value.group(2)))
-            self.result[name]['macdfs'].append(self.str_to_int(value.group(3)))
+        page_str = self.ocr.ocr(image)
+        page = int(page_str[-2])
+        # 获取数据
+        for _ in range(page):  # 遍历每一页
+            image = np.array(pyautogui.screenshot())
+            for index in range(6):
+                # 涨幅
+                x = x1 + index * w_add if index < 3 else x1 + (index - 3) * w_add
+                y = y1 if index < 3 else y1 + y_add  # 涨幅
+                # self.draw_image(image[y:y + h, x:x + w])
+                data_str = self.ocr.ocr(image[y:y + h, x:x + w])
+                search = self.regex['涨幅'].search(data_str)
+                if search is None:  # 没检测到提前结束
+                    break
+                name = search.group(1)
+                if self.result.get(name) is None:
+                    self.result[name] = {'涨幅': [], 'macdfs': [], '状态': ''}
+                self.result[name]['涨幅'].append(self.str_to_float(search.group(3)))
+                # macdfs
+                x_ = x1_ + index * w_add if index < 3 else x1_ + (index - 3) * w_add
+                y_ = y1_ if index < 3 else y1_ + y_add  # macdfs
+                # self.draw_image(image[y_:y_ + h_, x_:x_ + w_])
+                data_str = self.ocr.ocr(image[y_:y_ + h_, x_:x_ + w_])
+                search = self.regex['macdfs'].search(data_str)
+                self.result[name]['macdfs'].append(self.str_to_float(search.group(1)))
+            # 换页
+            x, y = self.axis['多股同列']['下一页']
+            pyautogui.moveTo(x, y, duration=0)
+            pyautogui.click(x, y, interval=0)
+            time.sleep(0.2)
 
     def _analysis(self):
         message = ''  # 监测信息
@@ -157,7 +207,7 @@ class auto_gui_class:
             # 涨幅
             value = self.result[name]['涨幅']
             state = self.result[name]['状态']
-            if state != '涨停' and value[-1] > 9.96:
+            if state == '' and value[-1] > 9.95:
                 self.result[name]['状态'] = '涨停'
                 message += f'{name}：涨停\n'
             elif state == '涨停' and value[-1] < value[-2]:
@@ -165,9 +215,9 @@ class auto_gui_class:
                 message += f'{name}：炸板\n'
             # macdfs
             macdfs = self.result[name]['macdfs']
-            if macdfs[-2] <= 0 and macdfs[-1] > 0:  # macdfs变红
+            if macdfs[-2] <= -0.01 and macdfs[-1] > -0.01:  # macdfs变红
                 message += f'{name}：macdfs买点\n'
-            elif macdfs[-2] >= 0 and macdfs[-1] < 0:  # macdfs变绿
+            elif macdfs[-2] >= 0.01 and macdfs[-1] < 0.01:  # macdfs变绿
                 message += f'{name}：macdfs卖点\n'
         if message:  # 需要发消息
             # 复制
@@ -177,7 +227,7 @@ class auto_gui_class:
             pyautogui.moveTo(x, y, duration=0)
             pyautogui.click(button='left', clicks=1, interval=self.interval)
             # 粘贴
-            pyautogui.hotkey('ctrl', 'v', interval=self.interval)
+            pyautogui.hotkey('ctrl', 'v', interval=0)
             pyautogui.press('enter')  # 发送
             # 回到同花顺
             x, y = self.axis['桌面']['同花顺_任务栏']
@@ -211,20 +261,21 @@ class auto_gui_class:
         return x, y, w, h
 
     @staticmethod
-    def click_delete_input(text, sleep=0.1):  # 点击+清除+输入文本
-        pyautogui.click(button='left', clicks=1, interval=0)
-        time.sleep(sleep)
+    def click_delete_input(text):  # 点击+清除+输入文本
+        pyautogui.click(button='left', clicks=1, interval=0.1)
         pyautogui.hotkey('ctrl', 'a', interval=0)
         pyautogui.hotkey('ctrl', 'x', interval=0)
         pyperclip.copy(text)
         pyautogui.hotkey('ctrl', 'v', interval=0)
 
     @staticmethod
-    def str_to_int(str_):
+    def str_to_float(str_):
         if '-' in str_:
             float_ = -float(str_[1:])
-        else:
+        elif '+' in str_:
             float_ = float(str_[1:])
+        else:
+            float_ = float(str_)
         return float_
 
     @staticmethod
