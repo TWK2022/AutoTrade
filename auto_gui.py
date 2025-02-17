@@ -3,6 +3,7 @@ import re
 import PIL
 import time
 import yaml
+import ctypes
 import logging
 import datetime
 import pyperclip
@@ -53,6 +54,7 @@ class auto_gui_class:
         '''
         logging.info('--------------------auto_gui--------------------')
         # 初始化
+        ctypes.windll.kernel32.SetThreadExecutionState(0x80000000 | 0x00000001 | 0x00000002)  # 防止息屏，程序结束后失效
         self.interval = interval
         self._init()
         # 执行任务
@@ -66,8 +68,6 @@ class auto_gui_class:
                 self._get_data()
                 # 分析股票信息
                 self._analysis()
-                # 移动鼠标防止息屏
-                pyautogui.moveTo(int(np.random.randint(1, int(0.5 * self.w), 1)), 5)
                 # 间隔
                 end_time = time.time()
                 # print(f'|时间：{end_time - start_time:.4f}|')
@@ -117,7 +117,7 @@ class auto_gui_class:
         pyautogui.moveTo(x, int(y + 0.1 * self.h), duration=0)
         for i in range(10):
             time.sleep(0.1)
-            pyautogui.scroll(200)
+            pyautogui.scroll(500)
         # 监测
         x, y, w, h = self._find_and_click(self.yaml_dict['自选']['监测'], click=1)
         self.axis['自选']['监测'] = (x, y)
@@ -145,10 +145,9 @@ class auto_gui_class:
                 break
             name = value.group(1)
             if self.result.get(name) is None:
-                self.result[name] = {'状态': '', '涨幅': [], 'diff': [], 'dea': []}
+                self.result[name] = {'状态': '', '涨幅': [], 'macdfs': []}
             self.result[name]['涨幅'].append(self.str_to_int(value.group(2)))
-            self.result[name]['diff'].append(self.str_to_int(value.group(3)))
-            self.result[name]['dea'].append(self.str_to_int(value.group(4)))
+            self.result[name]['macdfs'].append(self.str_to_int(value.group(3)))
 
     def _analysis(self):
         message = ''  # 监测信息
@@ -165,12 +164,10 @@ class auto_gui_class:
                 self.result[name]['状态'] = '炸板'
                 message += f'{name}：炸板\n'
             # macdfs
-            macdfs_scale = 0.99  # 在满足条件前一点就触发监测
-            diff = self.result[name]['diff']
-            dea = self.result[name]['dea']
-            if diff[-2] < macdfs_scale * dea[-2] and diff[-1] > macdfs_scale * dea[-1]:  # macdfs变红
+            macdfs = self.result[name]['macdfs']
+            if macdfs[-2] <= 0 and macdfs[-1] > 0:  # macdfs变红
                 message += f'{name}：macdfs买点\n'
-            elif diff[-2] > macdfs_scale * dea[-2] and diff[-1] < macdfs_scale * dea[-1]:  # macdfs变绿
+            elif macdfs[-2] >= 0 and macdfs[-1] < 0:  # macdfs变绿
                 message += f'{name}：macdfs卖点\n'
         if message:  # 需要发消息
             # 复制
