@@ -47,7 +47,7 @@ class auto_gui_class:
         # 结果
         self.result = {}
 
-    def auto_gui(self, time_interval=10):
+    def auto_gui(self, time_interval=20):
         '''
             time_interval: 获取和监测数据的最小时间间隔(系统运行需要一定时间)
         '''
@@ -179,20 +179,21 @@ class auto_gui_class:
                 y = y1 if index < 3 else y1 + y_add  # 涨幅
                 # self.draw_image(image[y:y + h, x:x + w])
                 data_str = self.ocr.ocr(image[y:y + h, x:x + w])
-                search = self.regex['涨幅'].search(data_str)
-                if search is None:  # 没检测到提前结束
-                    break
-                name = search.group(1)
-                if self.result.get(name) is None:
-                    self.result[name] = {'涨幅': [], 'macdfs': [], '状态': ''}
-                self.result[name]['涨幅'].append(self.str_to_float(search.group(3)))
+                search1 = self.regex['涨幅'].search(data_str)
                 # macdfs
                 x_ = x1_ + index * w_add if index < 3 else x1_ + (index - 3) * w_add
                 y_ = y1_ if index < 3 else y1_ + y_add  # macdfs
                 # self.draw_image(image[y_:y_ + h_, x_:x_ + w_])
                 data_str = self.ocr.ocr(image[y_:y_ + h_, x_:x_ + w_])
-                search = self.regex['macdfs'].search(data_str)
-                self.result[name]['macdfs'].append(self.str_to_float(search.group(1)))
+                search2 = self.regex['macdfs'].search(data_str)
+                # 记录
+                if search1 is None or search2 is None:  # 没检测到提前结束
+                    break
+                name = search1.group(1)
+                if self.result.get(name) is None:
+                    self.result[name] = {'涨幅': [], 'macdfs': [], '状态': ''}
+                self.result[name]['涨幅'].append(self.str_to_float(search1.group(3)))
+                self.result[name]['macdfs'].append(self.str_to_float(search2.group(1)))
             # 换页
             x, y = self.axis['多股同列']['下一页']
             pyautogui.moveTo(x, y, duration=0)
@@ -207,12 +208,18 @@ class auto_gui_class:
             # 涨幅
             value = self.result[name]['涨幅']
             state = self.result[name]['状态']
-            if state == '' and value[-1] > 9.95:
+            if state != '涨停' and state != '炸板' and value[-1] > 9.95:
                 self.result[name]['状态'] = '涨停'
                 message += f'{name}：涨停\n'
             elif state == '涨停' and value[-1] < value[-2]:
                 self.result[name]['状态'] = '炸板'
                 message += f'{name}：炸板\n'
+            elif state != '跌停' and state != '翘板' and value[-1] < -9.95:
+                self.result[name]['状态'] = '跌停'
+                message += f'{name}：跌停\n'
+            elif state == '跌停' and value[-1] > value[-2]:
+                self.result[name]['状态'] = '翘板'
+                message += f'{name}：翘板\n'
             # macdfs
             macdfs = self.result[name]['macdfs']
             if macdfs[-2] <= -0.01 and macdfs[-1] > -0.01:  # macdfs变红
