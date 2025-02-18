@@ -6,15 +6,14 @@
   收起推荐: 'match_image/首页/收起推荐.png'
   自选: 'match_image/首页/自选.png'
   返回: 'match_image/首页/返回.png'
+  下翻: 'match_image/首页/下翻.png'
 自选:
   我的板块: 'match_image/自选/我的板块.png'
   监测: 'match_image/自选/监测.png'
-多股同列:
-  上一页: 'match_image/多股同列/上一页.png'
-  下一页: 'match_image/多股同列/下一页.png'
+  分时图: 'match_image/自选/分时图.png'
 微信:
   微信_任务栏: 'match_image/微信/微信_任务栏.png'
   监测: 'match_image/微信/监测.png'
 regex:
-  涨幅: '(\D+)(.*)([+-]\d+\.\d+)%'
-  macdfs: '([+-]\d\.\d{3})'
+  名称: '(\D+).*'
+  macdfs: 'MACDFS:([+-]\d\.\d{3})'
