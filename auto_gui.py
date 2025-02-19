@@ -47,7 +47,7 @@ class auto_gui_class:
         # 结果
         self.result = {}
 
-    def auto_gui(self, time_interval=2):
+    def auto_gui(self, time_interval=3):
         '''
             time_interval: 获取和监测数据的最小时间间隔(系统运行需要一定时间)
         '''
@@ -68,7 +68,7 @@ class auto_gui_class:
                 self._analysis(name=name)
                 # 间隔
                 end_time = time.time()
-                print(f'|时间：{end_time - start_time:.4f}|')
+                # print(f'|时间：{end_time - start_time:.4f}|')
                 time.sleep(max(time_interval - (end_time - start_time), 0))
             #  非交易时间
             elif time_now < self.time_start:  # 早上前
@@ -155,7 +155,8 @@ class auto_gui_class:
         data_str = self.ocr.ocr(image2)
         search2 = self.regex['macdfs'].search(data_str)
         if search1 is None or search2 is None:
-            name = None
+            name = ''
+            print('! 未检测到数据 !')
         else:
             name = search1.group(1)
             macdfs = self.str_to_float(search2.group(1))
@@ -171,7 +172,7 @@ class auto_gui_class:
 
     def _analysis(self, name=None):
         message = ''  # 监测信息
-        name_list = list(self.result.keys()) if name is None else [name]
+        name_list = [name] if name else []
         for name in name_list:
             if len(self.result[name]['macdfs']) < 2:  # 数据太少跳过
                 continue

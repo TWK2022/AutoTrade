@@ -16,4 +16,4 @@
   监测: 'match_image/微信/监测.png'
 regex:
   名称: '(\D+).*'
-  macdfs: 'MACDFS:([+-]\d\.\d{3})'
+  macdfs: 'MACDFS:\s*([+-]\d\.\d{3})'
