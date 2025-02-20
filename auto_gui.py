@@ -155,13 +155,16 @@ class auto_gui_class:
         data_str = self.ocr.ocr(image2)
         search2 = self.regex['macdfs'].search(data_str)
         if search1 is None or search2 is None:
-            name = ''
-            print('! 未检测到数据 !')
+            name = None
+            if search1 is not None:
+                print(f'! 未检测到数据：{search1.group(1)} !')
+            else:
+                print('! 未检测到数据 !')
         else:
             name = search1.group(1)
             macdfs = self.str_to_float(search2.group(1))
             if self.result.get(name) is None:
-                self.result[name] = {'macdfs': []}
+                self.result[name] = {'macdfs': [], 'macdfs状态': ''}
             self.result[name]['macdfs'].append(macdfs)
         # self.draw_image(image1)
         # self.draw_image(image2)
@@ -174,15 +177,19 @@ class auto_gui_class:
         message = ''  # 监测信息
         name_list = [name] if name else []
         for name in name_list:
-            if len(self.result[name]['macdfs']) < 2:  # 数据太少跳过
+            if len(self.result[name]['macdfs']) < 3:  # 数据太少跳过
                 continue
             # macdfs
             macdfs = self.result[name]['macdfs']
-            if macdfs[-2] <= -0.001 and macdfs[-1] > -0.001:  # macdfs变红
+            state = self.result[name]['macdfs状态']
+            if state != '绿区峰值' and -0.01 > macdfs[-1] > macdfs[-2] >= macdfs[-3]:  # 绿区峰值
                 message += f'{name}：macdfs买点\n'
-            elif macdfs[-2] >= 0.001 and macdfs[-1] < 0.001:  # macdfs变绿
+                self.result[name]['macdfs状态'] = '绿区峰值'
+            elif state != '红区峰值' and 0.01 < macdfs[-1] < macdfs[-2] <= macdfs[-3]:  # 红区峰值
                 message += f'{name}：macdfs卖点\n'
+                self.result[name]['macdfs状态'] = '红区峰值'
         if message:  # 需要发消息
+            message = f'{str(datetime.datetime.now().time())[:8]} | {message}'
             # 复制
             pyperclip.copy(message.strip())
             # 打开微信
