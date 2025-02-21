@@ -183,10 +183,10 @@ class auto_gui_class:
             macdfs = self.result[name]['macdfs']
             state = self.result[name]['macdfs状态']
             if state != '绿区峰值' and -0.01 > macdfs[-1] > macdfs[-2] >= macdfs[-3]:  # 绿区峰值
-                message += f'{name}：macdfs买点\n'
+                message += f'{name} | macdfs买点\n'
                 self.result[name]['macdfs状态'] = '绿区峰值'
             elif state != '红区峰值' and 0.01 < macdfs[-1] < macdfs[-2] <= macdfs[-3]:  # 红区峰值
-                message += f'{name}：macdfs卖点\n'
+                message += f'{name} | macdfs卖点\n'
                 self.result[name]['macdfs状态'] = '红区峰值'
         if message:  # 需要发消息
             message = f'{str(datetime.datetime.now().time())[:8]} | {message}'
