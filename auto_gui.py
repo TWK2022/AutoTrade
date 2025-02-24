@@ -189,7 +189,7 @@ class auto_gui_class:
                 message += f'{name} | macdfs卖点\n'
                 self.result[name]['macdfs状态'] = '红区峰值'
         if message:  # 需要发消息
-            message = f'{str(datetime.datetime.now().time())[:8]} | {message}'
+            message = f'{str(datetime.datetime.now().time())[:5]} | {message}'
             # 复制
             pyperclip.copy(message.strip())
             # 打开微信
