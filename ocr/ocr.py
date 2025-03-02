@@ -1,3 +1,4 @@
+import os
 import cv2
 import argparse
 import onnxruntime
@@ -12,6 +13,9 @@ parser = argparse.ArgumentParser(description='|ocr图片文字检测|')
 parser.add_argument('--model_path', default='ocr_model/model.onnx', type=str, help='|ocr模型位置|')
 parser.add_argument('--vocab_path', default='ocr_model/vocab.txt', type=str, help='|vocab词表位置|')
 args, _ = parser.parse_known_args()
+path_dir = os.path.dirname(__file__)  # 目录
+args.model_path = path_dir + '/' + args.model_path
+args.vocab_path = path_dir + '/' + args.vocab_path
 
 
 # -------------------------------------------------------------------------------------------------------------------- #

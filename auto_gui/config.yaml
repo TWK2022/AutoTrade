@@ -5,12 +5,16 @@
   页面放大: 'match_image/首页/页面放大.png'
   收起推荐: 'match_image/首页/收起推荐.png'
   自选: 'match_image/首页/自选.png'
-  返回: 'match_image/首页/返回.png'
   下翻: 'match_image/首页/下翻.png'
 自选:
   我的板块: 'match_image/自选/我的板块.png'
   监测: 'match_image/自选/监测.png'
   分时图: 'match_image/自选/分时图.png'
+信息:
+  公司亮点: 'match_image/信息/公司亮点.png'
+  主营业务: 'match_image/信息/主营业务.png'
+  营业总收入: 'match_image/信息/营业总收入.png'
+  净利润: 'match_image/信息/净利润.png'
 微信:
   微信_任务栏: 'match_image/微信/微信_任务栏.png'
   监测: 'match_image/微信/监测.png'

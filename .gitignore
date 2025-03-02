@@ -29,6 +29,6 @@ economy/input_column.txt
 economy/tushare/number.yaml
 economy/tushare/reserve.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
-!ocr_model/**
-!match_image/**
-!image/demo.png
+!ocr/ocr_model/**
+!ocr/image/demo.png
+!auto_gui/match_image/**
