@@ -12,7 +12,7 @@ class block_class:
         return x, y, w, h
 
     @staticmethod
-    def image_location(image_path, confidence=0.8, retry=20, assert_=False):  # 匹配图片+得到位置坐标
+    def image_location(image_path, confidence=0.85, retry=20, assert_=False):  # 匹配图片+得到位置坐标
         def location():
             try:  # 匹配图片
                 x, y = pyautogui.locateCenterOnScreen(image, confidence=confidence)

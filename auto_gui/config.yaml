@@ -11,6 +11,7 @@
   监测: 'match_image/自选/监测.png'
   分时图: 'match_image/自选/分时图.png'
 信息:
+  下一个股: 'match_image/信息/下一个股.png'
   公司亮点: 'match_image/信息/公司亮点.png'
   主营业务: 'match_image/信息/主营业务.png'
   营业总收入: 'match_image/信息/营业总收入.png'
@@ -19,5 +20,5 @@
   微信_任务栏: 'match_image/微信/微信_任务栏.png'
   监测: 'match_image/微信/监测.png'
 regex:
-  名称: '(\D+).*'
+  名称: '(\D+)\s?(\d+)'
   macdfs: 'MACDFS:\s*([+-]\d\.\d{3})'
