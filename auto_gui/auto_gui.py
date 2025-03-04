@@ -11,14 +11,14 @@ import pyperclip
 import pyautogui
 import numpy as np
 
-if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):
+if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):  # 当前目录下运行
     from block import block_class
 else:
     from .block import block_class
 # -------------------------------------------------------------------------------------------------------------------- #
-#
+# 功能：实时监测股票，及时提醒买卖点
 # -------------------------------------------------------------------------------------------------------------------- #
-parser = argparse.ArgumentParser(description='|目标检测|')
+parser = argparse.ArgumentParser(description='|实时监测|')
 parser.add_argument('--yaml_path', default='config.yaml', type=str, help='|配置文件位置|')
 args, _ = parser.parse_known_args()
 args.yaml_path = os.path.dirname(__file__) + '/' + args.yaml_path  # 配置文件位置
@@ -166,9 +166,9 @@ class auto_gui_class(block_class):
         if search1 is None or search2 is None:
             name = None
             if search1 is not None:
-                print(f'! 未检测到数据：{search1.group(1)} !')
+                print(f'! {str(datetime.datetime.now().time())[:5]} | 未检测到数据 | {search1.group(1)} !')
             else:
-                print('! 未检测到数据 !')
+                print(f'! {str(datetime.datetime.now().time())[:5]} | 未检测到任何数据 !')
         else:
             name = search1.group(1)
             macdfs = self.str_to_float(search2.group(1))

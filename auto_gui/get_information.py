@@ -5,17 +5,17 @@ import argparse
 import pyautogui
 import numpy as np
 
-if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):
+if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):  # 当前目录下运行
     from auto_gui import auto_gui_class
 else:
     from .auto_gui import auto_gui_class
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# 功能：自动收集同花顺某个板块中的所有股票f10信息
+# 功能：自动收集同花顺某个板块中的所有股票f10信息。记录到information.txt。让大模型根据内容来筛选股票
 # 运行条件：进入要收集的行业/概念/板块，点击进入行业的第一支股票，再运行代码
 # -------------------------------------------------------------------------------------------------------------------- #
-parser = argparse.ArgumentParser(description='|目标检测|')
-parser.add_argument('--number', default=100, type=int, help='|查找股票上限|')
+parser = argparse.ArgumentParser(description='|收集信息|')
+parser.add_argument('--number', default=100, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
 args, _ = parser.parse_known_args()
 
@@ -61,6 +61,7 @@ class get_information_class(auto_gui_class):
                 name = search1.group(1)
                 code = search1.group(2)
                 if name and self.result.get(name) is not None:  # 循环了一轮
+                    print('| 提前结束 | 循环了一轮 |')
                     break
                 if code[:2] not in self.screen:
                     pyautogui.click(button='left', clicks=1, interval=0)  # 下一页
@@ -88,9 +89,14 @@ class get_information_class(auto_gui_class):
             # self.draw_image(image1)
             # self.draw_image(image2)
             # self.draw_image(image3)
+        # 记录
+        line_all = []
         for name in self.result.keys():
-            print(f'{name} {code} | {self.result[name]["公司亮点"]} | {self.result[name]["主营业务"]}')
-        return None
+            output = f'{name} {code} | {self.result[name]["公司亮点"]} | {self.result[name]["主营业务"]}'
+            line_all.append(output + '\n')
+            print(output)
+        with open('information.txt', 'w', encoding='utf-8') as f:
+            f.writelines(line_all)
 
 
 if __name__ == '__main__':
