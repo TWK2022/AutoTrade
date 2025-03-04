@@ -15,7 +15,7 @@ else:
 # 运行条件：进入要收集的行业/概念/板块，点击进入行业的第一支股票，再返回代码并运行
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|收集信息|')
-parser.add_argument('--number', default=100, type=int, help='|收集股票上限|')
+parser.add_argument('--number', default=300, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
 args, _ = parser.parse_known_args()
 
@@ -44,18 +44,6 @@ class get_information_class(auto_gui_class):
         x, y, w, h = self.image_location(self.yaml_dict['信息']['主营业务'], assert_=True)
         self.axis['信息']['主营业务'] = (x, y)
         self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
-        # 收入
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['收入'], assert_=True)
-        self.axis['信息']['收入'] = (x, y)
-        self.screenshot['信息']['收入'] = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
-        # 净利润
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['净利润'], assert_=True)
-        self.axis['信息']['净利润'] = (x, y)
-        self.screenshot['信息']['净利润'] = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
-        # 毛利率
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['毛利率'], assert_=True)
-        self.axis['信息']['毛利率'] = (x, y)
-        self.screenshot['信息']['毛利率'] = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
 
     def get_information(self):  # 获取股票的公司信息
         for _ in tqdm.tqdm(range(self.number)):
@@ -80,10 +68,33 @@ class get_information_class(auto_gui_class):
             # 截图
             image = np.array(pyautogui.screenshot())
             self.result[name] = {}
-            for key in ['公司亮点', '主营业务', '收入', '净利润', '毛利率']:
-                x, y, w, h = self.screenshot['信息'][key]
-                self.result[name][key] = self.ocr.ocr(image[y:y + h, x:x + w])
-                # self.draw_image(image[y:y + h, x:x + w])
+            # 公司亮点
+            x, y, w, h = self.screenshot['信息']['公司亮点']
+            self.result[name]['公司亮点'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 主营业务
+            x, y, w, h = self.screenshot['信息']['主营业务']
+            self.result[name]['主营业务'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 收入
+            x, y, w, h = self.image_location(self.yaml_dict['信息']['收入'])
+            if x is None:  # 未检测到
+                self.result[name]['收入'] = None
+            else:
+                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
+                self.result[name]['收入'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 净利润
+            x, y, w, h = self.image_location(self.yaml_dict['信息']['净利润'])
+            if x is None:  # 未检测到
+                self.result[name]['净利润'] = None
+            else:
+                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
+                self.result[name]['净利润'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 毛利率
+            x, y, w, h = self.image_location(self.yaml_dict['信息']['毛利率'])
+            if x is None:  # 未检测到
+                self.result[name]['毛利率'] = None
+            else:
+                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
+                self.result[name]['毛利率'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 下一页
             pyautogui.click(button='left', clicks=1, interval=0)
         # 记录
