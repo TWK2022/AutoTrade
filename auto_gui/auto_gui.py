@@ -57,7 +57,7 @@ class auto_gui_class(block_class):
         self.time_afternoon_open = datetime.datetime.combine(date, datetime.time(13, 00, 00))  # 下午开盘时间
         self.time_afternoon_close = datetime.datetime.combine(date, datetime.time(15, 00, 00))  # 下午收盘时间
 
-    def auto_gui(self, time_interval=3):  # 实时监控
+    def auto_gui(self, time_interval=2):  # 实时监控
         '''
             time_interval: 获取数据的最小时间间隔(系统运行需要一定时间)
         '''
@@ -173,7 +173,7 @@ class auto_gui_class(block_class):
             name = search1.group(1)
             macdfs = self.str_to_float(search2.group(1))
             if self.result.get(name) is None:
-                self.result[name] = {'macdfs': [], 'macdfs状态': ''}
+                self.result[name] = {'macdfs': [], 'macdfs峰值': 0.0}
             self.result[name]['macdfs'].append(macdfs)
         # self.draw_image(image1)
         # self.draw_image(image2)
@@ -190,15 +190,13 @@ class auto_gui_class(block_class):
                 continue
             # macdfs
             macdfs = self.result[name]['macdfs']
-            state = self.result[name]['macdfs状态']
-            if state != '绿区峰值' and -0.01 > macdfs[-1] > macdfs[-2] >= macdfs[-3]:  # 绿区峰值
+            peak_value = self.result[name]['macdfs峰值']
+            if macdfs[-2] < peak_value < -0.01 and macdfs[-2] < macdfs[-1]:  # 绿区峰值
                 message += f'{name} | macdfs买点\n'
-                self.result[name]['macdfs状态'] = '绿区峰值'
-            elif state != '红区峰值' and 0.01 < macdfs[-1] < macdfs[-2] <= macdfs[-3]:  # 红区峰值
+                self.result[name]['macdfs峰值'] = macdfs[-2]
+            elif macdfs[-2] > peak_value > 0.01 and macdfs[-2] > macdfs[-1]:  # 红区峰值
                 message += f'{name} | macdfs卖点\n'
-                self.result[name]['macdfs状态'] = '红区峰值'
-            elif -0.01 < macdfs[-1] < 0.01:
-                self.result[name]['macdfs状态'] = ''
+                self.result[name]['macdfs峰值'] = macdfs[-2]
         if message:  # 需要发消息
             message = f'{str(datetime.datetime.now().time())[:5]} | {message}'
             # 复制
