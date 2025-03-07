@@ -191,10 +191,10 @@ class auto_gui_class(block_class):
             # macdfs
             macdfs = self.result[name]['macdfs']
             peak_value = self.result[name]['macdfs峰值']
-            if macdfs[-2] < peak_value < -0.01 and macdfs[-2] < macdfs[-1]:  # 绿区峰值
+            if macdfs[-2] < peak_value and macdfs[-2] < macdfs[-1] < -0.01:  # 绿区峰值
                 message += f'{name} | macdfs买点\n'
                 self.result[name]['macdfs峰值'] = macdfs[-2]
-            elif macdfs[-2] > peak_value > 0.01 and macdfs[-2] > macdfs[-1]:  # 红区峰值
+            elif macdfs[-2] > peak_value and macdfs[-2] > macdfs[-1] > 0.01:  # 红区峰值
                 message += f'{name} | macdfs卖点\n'
                 self.result[name]['macdfs峰值'] = macdfs[-2]
         if message:  # 需要发消息
