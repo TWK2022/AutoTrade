@@ -141,11 +141,11 @@ class auto_gui_class(block_class):
         self.axis['微信']['微信_任务栏'] = (x, y)
 
     def _get_data(self):  # 获取数据
-        # 涨幅截图坐标
+        # 名称截图坐标
         x1 = int(0.685 * self.w)
         y1 = int(0.081 * self.h)
-        # 涨幅截图长度
-        w1 = int(0.112 * self.w)
+        # 名称截图长度
+        w1 = int(0.113 * self.w)
         h1 = int(0.037 * self.h)
         # macdfs截图坐标
         x2 = int(0.0505 * self.w)
@@ -153,33 +153,44 @@ class auto_gui_class(block_class):
         # macdfs截图长度
         w2 = int(0.2458 * self.w)
         h2 = int(0.0194 * self.h)
+        # 时间
+        time_now = str(datetime.datetime.now().time())[:5]
         # 下翻位置
         x, y = self.axis['首页']['下翻']
         pyautogui.moveTo(x, y, duration=0)
-        # 获取数据
+        # 名称
         image1 = np.array(pyautogui.screenshot(region=(x1, y1, w1, h1)))
         name_str = self.ocr.ocr(image1)
         search1 = self.regex['名称'].search(name_str)
-        image2 = np.array(pyautogui.screenshot(region=(x2, y2, w2, h2)))
+        if search1 is None:
+            print(f'! {time_now} | 未检测到名称 !')
+            pyautogui.click(button='left', clicks=1, interval=0)  # 点击下翻
+            time.sleep(0.2)
+            return None
+        name = search1.group(1)
+        if self.result.get(name) is None:
+            self.result[name] = {'macdfs': [], 'macdfs峰值': 0.0}
+        # macdfs
+        if name == '上证指数':
+            image2 = np.array(pyautogui.screenshot(region=(int(0.057 * self.w), int(0.514 * self.h), w2, h2)))
+        else:
+            image2 = np.array(pyautogui.screenshot(region=(x2, y2, w2, h2)))
         data_str = self.ocr.ocr(image2)
         search2 = self.regex['macdfs'].search(data_str)
-        if search1 is None or search2 is None:
-            name = None
-            if search1 is not None:
-                print(f'! {str(datetime.datetime.now().time())[:5]} | 未检测到数据 | {search1.group(1)} !')
-            else:
-                print(f'! {str(datetime.datetime.now().time())[:5]} | 未检测到任何数据 !')
-        else:
-            name = search1.group(1)
-            macdfs = self.str_to_float(search2.group(1))
-            if self.result.get(name) is None:
-                self.result[name] = {'macdfs': [], 'macdfs峰值': 0.0}
-            self.result[name]['macdfs'].append(macdfs)
+        if search2 is None:
+            print(f'! {time_now} | 未检测到数据：{name} !')
+            pyautogui.click(button='left', clicks=1, interval=0)  # 点击下翻
+            time.sleep(0.2)
+            return None
+        macdfs = self.str_to_float(search2.group(1))
+        self.result[name]['macdfs'].append(macdfs)
         # self.draw_image(image1)
         # self.draw_image(image2)
         # 点击下翻
         pyautogui.click(button='left', clicks=1, interval=0)
         time.sleep(0.2)
+        # 结果
+        print(f'| {time_now} | {name} | {macdfs} |')
         return name
 
     def _analysis(self, name=None):
