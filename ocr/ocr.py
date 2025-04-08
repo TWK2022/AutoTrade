@@ -28,7 +28,7 @@ class ocr_class:
             self.vocab_path = np.array([_[:-1] for _ in f.readlines()])
 
     def ocr(self, image):
-        input_data = self.image_deal(image)
+        input_data = self.image_deal(np.array(image))
         output = self.session.run([self.output_name], {self.input_name: input_data})[0][0]
         predict = np.argmax(output, axis=1)
         predict = self.vocab_path[predict]

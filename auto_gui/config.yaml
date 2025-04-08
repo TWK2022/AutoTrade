@@ -10,6 +10,12 @@
   我的板块: 'match_image/自选/我的板块.png'
   监测: 'match_image/自选/监测.png'
   分时图: 'match_image/自选/分时图.png'
+  添加股票: 'match_image/自选/添加股票.png'
+  操作: 'match_image/自选/操作.png'
+  搜索框: 'match_image/自选/搜索框.png'
+  图片识别导入: 'match_image/自选/图片识别导入.png'
+  加股票: 'match_image/自选/加股票.png'
+  关闭添加: 'match_image/自选/关闭添加.png'
 信息:
   下一个股: 'match_image/信息/下一个股.png'
   公司亮点: 'match_image/信息/公司亮点.png'

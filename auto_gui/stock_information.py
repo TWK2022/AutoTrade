@@ -1,61 +1,76 @@
 import os
 import tqdm
 import time
+import ocr
 import argparse
 import pyautogui
 import numpy as np
+import pandas as pd
 
 if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):  # 当前目录下运行
-    from auto_gui import auto_gui_class
+    from block import block_class
 else:
-    from .auto_gui import auto_gui_class
+    from .block import block_class
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# 功能：自动收集同花顺某个板块中的所有股票f10信息。记录到information.txt
+# 功能：自动收集同花顺某个板块中的所有股票f10信息。记录到.txt
 # 运行条件：进入要收集的行业/概念/板块，点击进入行业的第一支股票，再返回代码并运行
-# 后续筛选：让大模型根据内容来筛选股票，每50个一组。如：根据以下信息，筛选出与A行业相关性很强、业绩有上涨预期的股票
+# 后续筛选：让大模型根据内容来筛选股票。
+# 如：结合以下信息和你的知识库，筛选出与A行业最不相关、或核心业务占比最少、或业绩很差的股票X支左右，结果只需要给出名称：
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|收集信息|')
-parser.add_argument('--number', default=500, type=int, help='|收集股票上限|')
+parser.add_argument('--number', default=200, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
+parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
+parser.add_argument('--save_path', default='information.csv', type=str, help='|保存位置|')
 args_default, _ = parser.parse_known_args()
+save_dir = os.path.dirname(os.path.dirname(__file__)) + '/dataset/industry/'
+args_default.save_path = save_dir + args_default.save_path
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
 
 
-class stock_information_class(auto_gui_class):
+class stock_information_class(block_class):
     def __init__(self, args=args_default):
         super().__init__()
         self.number = args.number
         self.screen = args.screen
+        self.drop_st = args.drop_st
+        self.save_path = args.save_path
+        # 文字检测模型
+        self.ocr = ocr.ocr.ocr_class()
+        # 结果
+        self.result = {}
         # 回到桌面
         pyautogui.hotkey('win', 'd')
         pyautogui.moveTo(1, 1, duration=0)
         time.sleep(0.5)
         # 进入同花顺
-        self.find_and_click(self.yaml_dict['桌面']['同花顺_任务栏'], click=1)
+        self.find_and_click(self.image_dict['桌面']['同花顺_任务栏'], click=1)
         # 进入f10公司信息页面
         pyautogui.press('f10', presses=1, interval=0)
         # 下一个股
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['下一个股'], assert_=True)
-        self.axis['信息']['下一个股'] = (x, y)
+        x, y, w, h = self.image_location(self.image_dict['信息']['下一个股'], assert_=True)
+        self.position['信息']['下一个股'] = (x, y)
         # 公司亮点
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['公司亮点'], assert_=True)
-        self.axis['信息']['公司亮点'] = (x, y)
+        x, y, w, h = self.image_location(self.image_dict['信息']['公司亮点'], assert_=True)
+        self.position['信息']['公司亮点'] = (x, y)
         self.screenshot['信息']['公司亮点'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
         # 主营业务
-        x, y, w, h = self.image_location(self.yaml_dict['信息']['主营业务'], assert_=True)
-        self.axis['信息']['主营业务'] = (x, y)
+        x, y, w, h = self.image_location(self.image_dict['信息']['主营业务'], assert_=True)
+        self.position['信息']['主营业务'] = (x, y)
         self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
 
     def stock_information(self):  # 获取股票的公司信息
         for _ in tqdm.tqdm(range(self.number)):
             # 下翻位置
-            x, y = self.axis['信息']['下一个股']
+            x, y = self.position['信息']['下一个股']
             pyautogui.moveTo(x, y, duration=0)
             # 等待页面刷新
             time.sleep(0.2)
             # 名称
             x, y, w, h = (int(0.448 * self.w), int(0.083 * self.h), int(0.114 * self.w), int(0.032 * self.h))
-            image1 = np.array(pyautogui.screenshot(region=(x, y, w, h)))
+            image1 = pyautogui.screenshot(region=(x, y, w, h))
             name_str = self.ocr.ocr(image1)
             search1 = self.regex['名称'].search(name_str)
             name = search1.group(1).strip()
@@ -63,6 +78,9 @@ class stock_information_class(auto_gui_class):
             if name and self.result.get(name) is not None:  # 循环了一轮
                 print('| 提前结束 | 循环了一轮 |')
                 break
+            if self.drop_st and 'ST' in name:  # 去除ST股票
+                pyautogui.click(button='left', clicks=1, interval=0)  # 下一页
+                continue
             if code[:2] not in self.screen:  # 非目标股票
                 pyautogui.click(button='left', clicks=1, interval=0)  # 下一页
                 continue
@@ -76,23 +94,23 @@ class stock_information_class(auto_gui_class):
             x, y, w, h = self.screenshot['信息']['主营业务']
             self.result[name]['主营业务'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 收入
-            x, y, w, h = self.image_location(self.yaml_dict['信息']['收入'], confidence=0.75)
+            x, y, w, h = self.image_location(self.image_dict['信息']['收入'], confidence=0.75)
             if x is None:  # 未检测到
-                self.result[name]['收入'] = None
+                self.result[name]['收入'] = 'None'
             else:
                 x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
                 self.result[name]['收入'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 净利润
-            x, y, w, h = self.image_location(self.yaml_dict['信息']['净利润'], confidence=0.75)
+            x, y, w, h = self.image_location(self.image_dict['信息']['净利润'], confidence=0.75)
             if x is None:  # 未检测到
-                self.result[name]['净利润'] = None
+                self.result[name]['净利润'] = 'None'
             else:
                 x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
                 self.result[name]['净利润'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 毛利率
-            x, y, w, h = self.image_location(self.yaml_dict['信息']['毛利率'], confidence=0.75)
+            x, y, w, h = self.image_location(self.image_dict['信息']['毛利率'], confidence=0.75)
             if x is None:  # 未检测到
-                self.result[name]['毛利率'] = None
+                self.result[name]['毛利率'] = 'None'
             else:
                 x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
                 self.result[name]['毛利率'] = self.ocr.ocr(image[y:y + h, x:x + w])
@@ -101,16 +119,12 @@ class stock_information_class(auto_gui_class):
         # 记录
         line_all = []
         for name in self.result.keys():
-            output = f'{name} | ' \
-                     f'公司亮点：{self.result[name]["公司亮点"]} | ' \
-                     f'主营业务：{self.result[name]["主营业务"]} | ' \
-                     f'收入：{self.result[name]["收入"]} | ' \
-                     f'净利润：{self.result[name]["净利润"]} | ' \
-                     f'毛利率：{self.result[name]["毛利率"]} |'
-            line_all.append(output + '\n')
-            print(output)
-        with open('information.txt', 'w', encoding='utf-8') as f:
-            f.writelines(line_all)
+            line_all.append([name, '公司亮点：' + self.result[name]['公司亮点'],
+                             '主营业务：' + self.result[name]['主营业务'], '收入：' + self.result[name]['收入'],
+                             '净利润：' + self.result[name]['净利润'], '毛利率：' + self.result[name]['毛利率']])
+        column = ['股票', '公司亮点', '主营业务', '收入', '净利润', '毛利率']
+        df = pd.DataFrame(line_all, columns=column)
+        df.to_csv(self.save_path, index=False)
 
 
 if __name__ == '__main__':

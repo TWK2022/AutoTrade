@@ -27,5 +27,6 @@ economy/tushare/reserve.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
 !.gitignore
 !ocr/ocr_model/**
-!ocr/image/demo.png
+!dataset/industry/**
 !auto_gui/match_image/**
+!ocr/image/demo.png

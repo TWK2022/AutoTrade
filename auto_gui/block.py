@@ -1,10 +1,39 @@
+import os
+import re
 import PIL
+import yaml
 import pyautogui
 import numpy as np
 from PIL import Image
 
+# -------------------------------------------------------------------------------------------------------------------- #
+# 复用模块
+# -------------------------------------------------------------------------------------------------------------------- #
+yaml_path_default = os.path.dirname(__file__) + '/config.yaml'  # 配置文件位置
+
 
 class block_class:
+    def __init__(self, yaml_path=yaml_path_default):
+        with open(yaml_path, 'r', encoding='utf-8') as f:  # 配置文件
+            self.image_dict = yaml.load(f, Loader=yaml.SafeLoader)
+        # 提取数据的正则表达式
+        self.regex = self.image_dict.pop('regex')
+        for key in self.regex.keys():
+            self.regex[key] = re.compile(self.regex[key])
+        # 相对路径转为绝对路径
+        dir_path = os.path.dirname(__file__)
+        for key in self.image_dict:
+            for name in self.image_dict[key]:
+                self.image_dict[key][name] = dir_path + '/' + self.image_dict[key][name]
+        # 屏幕大小
+        self.w, self.h = pyautogui.size()
+        # 坐标
+        self.position = {}  # 中心坐标：{name1:{name2:(x,y)}}
+        self.screenshot = {}  # 截图坐标：{name1:{name2:(x1,y1,w,h)}}
+        for key in os.listdir(f'{dir_path}/match_image'):
+            self.position[key] = {}
+            self.screenshot[key] = {}
+
     def find_and_click(self, image, click=1, retry=20):
         x, y, w, h = self.image_location(image, retry=retry, assert_=True)
         pyautogui.moveTo(x, y, duration=0)
