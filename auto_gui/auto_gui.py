@@ -20,12 +20,12 @@ else:
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|实时监测|')
 parser.add_argument('--yaml_path', default='config.yaml', type=str, help='|配置文件位置|')
-args, _ = parser.parse_known_args()
-args.yaml_path = os.path.dirname(__file__) + '/' + args.yaml_path  # 配置文件位置
+args_default, _ = parser.parse_known_args()
+args_default.yaml_path = os.path.dirname(__file__) + '/' + args_default.yaml_path  # 配置文件位置
 
 
 class auto_gui_class(block_class):
-    def __init__(self, args=args):
+    def __init__(self, args=args_default):
         with open(args.yaml_path, 'r', encoding='utf-8') as f:  # 配置文件
             self.yaml_dict = yaml.load(f, Loader=yaml.SafeLoader)
         # 提取数据的正则表达式
@@ -85,6 +85,7 @@ class auto_gui_class(block_class):
                 time.sleep((self.time_start - time_now).total_seconds())
             # 中午前
             elif time_now < self.time_afternoon_open:
+                break
                 time.sleep((self.time_afternoon_open - time_now).total_seconds())
             # 收盘后
             else:
@@ -202,10 +203,10 @@ class auto_gui_class(block_class):
             # macdfs
             macdfs = self.result[name]['macdfs']
             peak_value = self.result[name]['macdfs峰值']
-            if macdfs[-2] < peak_value and macdfs[-2] < macdfs[-1] < -0.01:  # 绿区峰值
+            if macdfs[-3] < peak_value and macdfs[-3] <= macdfs[-2] < macdfs[-1] < -0.01:  # 绿区峰值
                 message += f'{name} | macdfs买点\n'
                 self.result[name]['macdfs峰值'] = macdfs[-2]
-            elif macdfs[-2] > peak_value and macdfs[-2] > macdfs[-1] > 0.01:  # 红区峰值
+            elif macdfs[-3] > peak_value and macdfs[-3] >= macdfs[-2] > macdfs[-1] > 0.01:  # 红区峰值
                 message += f'{name} | macdfs卖点\n'
                 self.result[name]['macdfs峰值'] = macdfs[-2]
         if message:  # 需要发消息

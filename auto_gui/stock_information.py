@@ -18,11 +18,11 @@ else:
 parser = argparse.ArgumentParser(description='|收集信息|')
 parser.add_argument('--number', default=500, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
-args, _ = parser.parse_known_args()
+args_default, _ = parser.parse_known_args()
 
 
-class get_information_class(auto_gui_class):
-    def __init__(self, args=args):
+class stock_information_class(auto_gui_class):
+    def __init__(self, args=args_default):
         super().__init__()
         self.number = args.number
         self.screen = args.screen
@@ -46,7 +46,7 @@ class get_information_class(auto_gui_class):
         self.axis['信息']['主营业务'] = (x, y)
         self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
 
-    def get_information(self):  # 获取股票的公司信息
+    def stock_information(self):  # 获取股票的公司信息
         for _ in tqdm.tqdm(range(self.number)):
             # 下翻位置
             x, y = self.axis['信息']['下一个股']
@@ -115,5 +115,5 @@ class get_information_class(auto_gui_class):
 
 if __name__ == '__main__':
     # auto_gui_class.screenshot_measure()  # 截图测量
-    model = get_information_class()
-    model.get_information()
+    model = stock_information_class()
+    model.stock_information()
