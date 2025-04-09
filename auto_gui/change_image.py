@@ -9,7 +9,7 @@ from PIL import Image
 # -------------------------------------------------------------------------------------------------------------------- #
 def change_image(dir_path, odl_size, new_size):
     print(f'| {dir_path}中所有图片大小将从{odl_size}改为{new_size} |')
-    input('| 会覆盖原图片 | 取消：ctrl+d | 确定: 回车|')
+    input('| 会覆盖原图片 | 取消：ctrl+d | 确定：回车|')
     scale_w = new_size[0] / odl_size[0]
     scale_h = new_size[1] / odl_size[1]
     dir_name_list = os.listdir(dir_path)

@@ -4,6 +4,7 @@ import yaml
 import tqdm
 import tushare
 import argparse
+import datetime
 import pandas as pd
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -11,14 +12,17 @@ import pandas as pd
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|tushare|')
 parser.add_argument('--token', default='', type=str, help='|密钥|')
-parser.add_argument('--save_dir', default='../dataset', type=str, help='|保存路径的根目录|')
+parser.add_argument('--save_dir', default='dataset', type=str, help='|项目根目录下的位置|')
 parser.add_argument('--industry_start', default=['885', '886'], type=list, help='|只记录industry_start开头的行业|')
 parser.add_argument('--code_start', default=['00', '60'], type=list, help='|只记录code_start开头的股票|')
 parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
 parser.add_argument('--frequency', default=200, type=int, help='|API每分钟可以调取的频率|')
 parser.add_argument('--start_time', default='20180101', type=str, help='|获取股票数据的开始时间|')
-parser.add_argument('--end_time', default='20250601', type=str, help='|获取股票数据的结束时间|')
 args_default, _ = parser.parse_known_args()
+args_default.end_time = str(datetime.datetime.now().date()).replace('-', '')  # 当天日期
+args_default.save_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.save_dir
+if not os.path.exists(args_default.save_dir):
+    os.makedirs(args_default.save_dir)
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -40,8 +44,8 @@ class tushare_block_class:
         self.end_time = args.end_time  # 获取股票数据的结束时间
         self.industry_start = args.industry_start  # 只记录code_start开头的股票
         # data_get设置
-        self.daily_column = ['trade_date', 'open', 'high', 'low', 'close', 'change', 'pct_chg', 'vol', 'amount']
-        self.daily_name = ['日期', '开盘价', '最高价', '最低价', '收盘价', '涨跌额', '涨跌幅', '成交量', '成交额']
+        self.daily_column = ['trade_date', 'open', 'high', 'low', 'close', 'change', 'pct_chg', 'vol']
+        self.daily_name = ['日期', '开盘价', '最高价', '最低价', '收盘价', '涨跌额', '涨跌幅', '成交量']
         self.daily_basic_column = ['trade_date', 'turnover_rate', 'volume_ratio', 'pe_ttm', 'pb', 'ps_ttm', 'total_mv']
         self.daily_basic_name = ['日期', '换手率', '量比', '市盈率ttm', '市净率', '市销率ttm', '总市值']
         self.stk_factor_column = ['trade_date', 'kdj_k', 'kdj_d', 'kdj_j', 'rsi_6', 'rsi_12', 'rsi_24']
@@ -116,7 +120,7 @@ class tushare_block_class:
         with open(save_path, 'w', encoding='utf-8') as f:
             yaml.dump(stock_performance, f, allow_unicode=True, sort_keys=False)
 
-    def data_get(self, screen_path='screen_gpt.yaml', save_path='stock'):
+    def data_get(self, screen_path='stock_screen.yaml', save_path='stock'):
         screen_path = self.save_dir + '/' + screen_path
         save_path = self.save_dir + '/' + save_path
         if not os.path.exists(save_path):

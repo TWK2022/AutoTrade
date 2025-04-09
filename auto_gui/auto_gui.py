@@ -6,7 +6,6 @@ import logging
 import datetime
 import pyperclip
 import pyautogui
-import numpy as np
 
 if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):  # 当前目录下运行
     from block import block_class
@@ -106,10 +105,11 @@ class auto_gui_class(block_class):
                 time.sleep((self.time_start - time_now).total_seconds())
             # 中午前
             elif time_now < self.time_afternoon_open:
+                break
                 time.sleep((self.time_afternoon_open - time_now).total_seconds())
             # 收盘后
             else:
-                print('! 结束:已收盘 !')
+                print('! 结束：已收盘 !')
                 break
 
     def _get_data(self):  # 获取数据

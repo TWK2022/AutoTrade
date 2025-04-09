@@ -16,7 +16,7 @@ else:
 # 功能：自动收集同花顺某个板块中的所有股票f10信息。记录到.txt
 # 运行条件：进入要收集的行业/概念/板块，点击进入行业的第一支股票，再返回代码并运行
 # 后续筛选：让大模型根据内容来筛选股票。
-# 如：结合以下信息和你的知识库，筛选出与A行业最不相关、或核心业务占比最少、或业绩很差的股票X支左右，结果只需要给出名称：
+# 如：结合以下信息和你的知识库，筛选出与A行业最不相关、或核心业务占比最少、或业绩很差的股票M-N支左右，结果只需要给出名称：
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|收集信息|')
 parser.add_argument('--number', default=200, type=int, help='|收集股票上限|')
@@ -30,7 +30,7 @@ if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
 
-class stock_information_class(block_class):
+class ths_information_class(block_class):
     def __init__(self, args=args_default):
         super().__init__()
         self.number = args.number
@@ -61,7 +61,7 @@ class stock_information_class(block_class):
         self.position['信息']['主营业务'] = (x, y)
         self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
 
-    def stock_information(self):  # 获取股票的公司信息
+    def ths_information(self):  # 获取股票的公司信息
         for _ in tqdm.tqdm(range(self.number)):
             # 下翻位置
             x, y = self.position['信息']['下一个股']
@@ -129,5 +129,5 @@ class stock_information_class(block_class):
 
 if __name__ == '__main__':
     # auto_gui_class.screenshot_measure()  # 截图测量
-    model = stock_information_class()
-    model.stock_information()
+    model = ths_information_class()
+    model.ths_information()
