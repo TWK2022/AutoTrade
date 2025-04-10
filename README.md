@@ -13,7 +13,7 @@
 ### stock_process/tushare_block.py
 >根据上一步的结果收集股票数据  
 >需要密钥
-### stock_process/stock_add.py
+### stock_process/data_add.py
 >在初始股票数据中增加数据
 ### 筛选
 >筛选

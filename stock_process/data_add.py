@@ -20,7 +20,7 @@ if not os.path.exists(args_default.save_dir):
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-class stock_add_class:
+class data_add_class:
     def __init__(self, args=args_default):
         self.read_dir = args.read_dir
         self.save_dir = args.save_dir
@@ -31,7 +31,7 @@ class stock_add_class:
             for key in stock_screen[industry].keys():
                 self.stock_dict[key] = stock_screen[industry][key]
 
-    def stock_add(self):
+    def data_add(self):
         df = pd.read_csv(f'{os.path.dirname(self.read_dir)}/上证指数.csv')
         shangzheng = df['上证指数'].values
         shangzheng_vol = df['上证成交量'].values
@@ -198,5 +198,5 @@ class stock_add_class:
 
 # -------------------------------------------------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    model = stock_add_class()
-    model.stock_add()
+    model = data_add_class()
+    model.data_add()
