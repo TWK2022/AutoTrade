@@ -120,7 +120,7 @@ class tushare_block_class:
         with open(save_path, 'w', encoding='utf-8') as f:
             yaml.dump(stock_performance, f, allow_unicode=True, sort_keys=False)
 
-    def data_get(self, screen_path='stock_screen.yaml', save_path='stock'):
+    def data_get(self, screen_path='industry_choice.yaml', save_path='stock'):
         screen_path = self.save_dir + '/' + screen_path
         save_path = self.save_dir + '/' + save_path
         if not os.path.exists(save_path):

@@ -15,8 +15,8 @@
 >需要密钥
 ### stock_process/data_add.py
 >在初始股票数据中增加数据
-### 筛选
->筛选
+### stock_process/data_screen.py
+>筛选股票
 ### auto_gui/ths_add.py
 >将股票批量添加到同花顺的板块中  
 >频率：初始添加一次，之后可以手动增删股票

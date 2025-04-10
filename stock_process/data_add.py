@@ -8,11 +8,11 @@ import pandas as pd
 
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|补充数据|')
-parser.add_argument('--stock_screen', default='/dataset/stock_screen.yaml', type=str, help='|选择的股票|')
+parser.add_argument('--industry_choice', default='/dataset/industry_choice.yaml', type=str, help='|选择股票|')
 parser.add_argument('--read_dir', default='/dataset/stock', type=str, help='|股票数据|')
 parser.add_argument('--save_dir', default='/dataset/stock_add', type=str, help='|保存位置|')
 args_default = parser.parse_args()
-args_default.stock_screen = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.stock_screen
+args_default.industry_choice = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.industry_choice
 args_default.read_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.read_dir
 args_default.save_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.save_dir
 if not os.path.exists(args_default.save_dir):
@@ -24,12 +24,12 @@ class data_add_class:
     def __init__(self, args=args_default):
         self.read_dir = args.read_dir
         self.save_dir = args.save_dir
-        with open(args.stock_screen, 'r', encoding='utf-8') as f:
-            stock_screen = yaml.load(f, Loader=yaml.SafeLoader)
+        with open(args.industry_choice, 'r', encoding='utf-8') as f:
+            industry_choice = yaml.load(f, Loader=yaml.SafeLoader)
         self.stock_dict = {}  # 合并
-        for industry in stock_screen:
-            for key in stock_screen[industry].keys():
-                self.stock_dict[key] = stock_screen[industry][key]
+        for industry in industry_choice:
+            for key in industry_choice[industry].keys():
+                self.stock_dict[key] = industry_choice[industry][key]
 
     def data_add(self):
         df = pd.read_csv(f'{os.path.dirname(self.read_dir)}/上证指数.csv')

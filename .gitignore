@@ -2,6 +2,7 @@
 _.*
 wandb
 __pycache__
+!.gitignore
 # -------------------------------------------------------------------------------------------------------------------- #
 *.log
 *.jpg
@@ -25,7 +26,6 @@ economy/input_column.txt
 economy/tushare/number.yaml
 economy/tushare/reserve.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
-!.gitignore
 !ocr/ocr_model/**
 !dataset/industry/**
 !auto_gui/match_image/**
