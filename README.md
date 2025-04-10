@@ -8,7 +8,7 @@
 >将结果放入dataset/industry中，名称改为 行业.csv  
 >手动或借助大模型对股票的基本信息进行筛选，去除与行业不相关、非核心业务、业绩很差的公司  
 >频率：初始收集和筛选一次，之后可以手动增删股票
-### stock_process/stock_process.py
+### stock_process/industry_choice.py
 >从上一步的结果中选择行业和股票
 ### stock_process/tushare_block.py
 >根据上一步的结果收集股票数据  

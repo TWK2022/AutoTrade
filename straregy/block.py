@@ -16,13 +16,14 @@ class block_class:
     def bottom_volume_count(self, scale=1.5):
         name_list = os.listdir(self.path_dir)
         path_list = [self.path_dir + '/' + _ for _ in name_list]
-        result_df = pd.DataFrame([[0, 0] for _ in range(5)], columns=['总次数', '上涨概率'],
+        result_df = pd.DataFrame([[0, 0, 0] for _ in range(5)], columns=['总次数', '上涨', '上穿5日线'],
                                  index=['缩量0日', '缩量1日', '缩量2日', '缩量3日', '缩量4日'])
         for path in path_list:
             df = pd.read_csv(path)
             df['均价'] = 0.5 * df['收盘价'] + 0.1 * df['开盘价'] + 0.2 * df['最高价'] + 0.2 * df['最低价']
             result_df += self.bottom_volume(df, scale=scale)
-        result_df['上涨概率'] = np.round(result_df['上涨概率'] / len(path_list), 2)
+        result_df['上涨'] = np.round(result_df['上涨'] / len(path_list), 2)
+        result_df['上穿5日线'] = np.round(result_df['上穿5日线'] / len(path_list), 2)
         print(result_df)
 
     @staticmethod
@@ -32,6 +33,7 @@ class block_class:
         volume = df['成交量'].values
         all_dict = {_: 0 for _ in range(5)}
         correct_dict = {_: 0 for _ in range(5)}
+        cross_dict = {_: 0 for _ in range(5)}
         for index in range(5, len(df) - 2):
             # 昨日在5日线下方，今日成交量放大，持续放量(129)
             if value[index - 1] < close_5[index - 1] and scale * volume[index - 1] < volume[index]:
@@ -39,6 +41,8 @@ class block_class:
                     all_dict[0] += 1
                     if value[index] > value[index - 1] or value[index + 1] > value[index]:  # 今/明日上涨
                         correct_dict[0] += 1
+                    if value[index + 1] > close_5[index + 1]:  # 上穿5日线
+                        cross_dict[0] += 1
                 # 缩量1日(1219)
                 date = 1
                 if (value[index - date - 1] < close_5[index - date - 1]
@@ -47,6 +51,8 @@ class block_class:
                         all_dict[date] += 1
                         if value[index] > value[index - 1] or value[index + 1] > value[index]:
                             correct_dict[date] += 1
+                        if value[index + 1] > close_5[index + 1]:
+                            cross_dict[date] += 1
                     # 缩量2日(23219)
                     date = 2
                     if (value[index - date - 1] < close_5[index - date - 1]
@@ -55,6 +61,8 @@ class block_class:
                             all_dict[date] += 1
                             if value[index] > value[index - 1] or value[index + 1] > value[index]:
                                 correct_dict[date] += 1
+                            if value[index + 1] > close_5[index + 1]:
+                                cross_dict[date] += 1
                         # 缩量3日(343219)
                         date = 3
                         if (value[index - date - 1] < close_5[index - date - 1]
@@ -63,6 +71,8 @@ class block_class:
                                 all_dict[date] += 1
                                 if value[index] > value[index - 1] or value[index + 1] > value[index]:
                                     correct_dict[date] += 1
+                                if value[index + 1] > close_5[index + 1]:
+                                    cross_dict[date] += 1
                             # 缩量4日(4543219)
                             date = 4
                             if (value[index - date - 1] < close_5[index - date - 1]
@@ -71,12 +81,15 @@ class block_class:
                                     all_dict[date] += 1
                                     if value[index] > value[index - 1] or value[index + 1] > value[index]:
                                         correct_dict[date] += 1
+                                    if value[index + 1] > close_5[index + 1]:
+                                        cross_dict[date] += 1
         value = []
         index = []
         for date in correct_dict.keys():
-            value.append([all_dict[date], correct_dict[date] / (all_dict[date] + 1e-6)])
+            value.append([all_dict[date], correct_dict[date] / (all_dict[date] + 1e-6),
+                         cross_dict[date] / (all_dict[date] + 1e-6)])
             index.append(f'缩量{date}日')
-        column = ['总次数', '上涨概率']
+        column = ['总次数', '上涨', '上穿5日线']
         df = pd.DataFrame(value, columns=column, index=index)
         return df
 

@@ -7,7 +7,7 @@ import pandas as pd
 # 筛选出某个行业的股票
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|选择股票|')
-parser.add_argument('--industry', default='军工,医药,电力,社区团购,粮食概念,黄金概念', type=str, help='|选择的行业，如"A,B,C"|')
+parser.add_argument('--industry', default='军工,医药,电力,社区团购,粮食概念,黄金概念,国产操作系统', type=str, help='|选择的行业，如"A,B,C"|')
 parser.add_argument('--stock_path', default='dataset/stock_all.yaml', type=str, help='|股票列表|')
 parser.add_argument('--read_dir', default='dataset/industry', type=str, help='|行业csv文件|')
 parser.add_argument('--save_path', default='dataset/stock_screen.yaml', type=str, help='|保存位置|')
@@ -19,7 +19,7 @@ args_default.save_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-class stock_process_class:
+class industry_choice_class:
     def __init__(self, args=args_default):
         self.industry = args.industry
         self.read_dir = args.read_dir
@@ -27,7 +27,7 @@ class stock_process_class:
         with open(args_default.stock_path, 'r', encoding='utf-8') as f:
             self.stock_dict = yaml.load(f, Loader=yaml.SafeLoader)
 
-    def stock_process(self):
+    def industry_choice(self):
         self.industry_choice()
 
     def industry_choice(self):
@@ -48,5 +48,5 @@ class stock_process_class:
 
 # -------------------------------------------------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    model = stock_process_class()
-    model.stock_process()
+    model = industry_choice_class()
+    model.industry_choice()
