@@ -1,7 +1,7 @@
 # ...
 ### 环境
 >```
->
+>pip install finta tushare pyperclip pyautogui opencv-python onnxruntime -i https://pypi.tuna.tsinghua.edu.cn/simple
 >```
 ### auto_gui/ths_information.py
 >收集同花顺中某个行业的股票基本信息  

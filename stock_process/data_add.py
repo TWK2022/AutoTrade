@@ -12,9 +12,10 @@ parser.add_argument('--industry_choice', default='/dataset/industry_choice.yaml'
 parser.add_argument('--read_dir', default='/dataset/stock', type=str, help='|股票数据|')
 parser.add_argument('--save_dir', default='/dataset/stock_add', type=str, help='|保存位置|')
 args_default = parser.parse_args()
-args_default.industry_choice = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.industry_choice
-args_default.read_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.read_dir
-args_default.save_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.save_dir
+project_dir = os.path.dirname(os.path.dirname(__file__))
+args_default.industry_choice = project_dir + '/' + args_default.industry_choice
+args_default.read_dir = project_dir + '/' + args_default.read_dir
+args_default.save_dir = project_dir + '/' + args_default.save_dir
 if not os.path.exists(args_default.save_dir):
     os.makedirs(args_default.save_dir)
 

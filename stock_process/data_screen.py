@@ -1,5 +1,6 @@
 import os
 import yaml
+import tqdm
 import argparse
 import numpy as np
 import pandas as pd
@@ -40,7 +41,7 @@ class data_screen_class:
 
     def data_screen(self):
         result_dict = {}
-        for industry in self.industry_choice.keys():
+        for industry in tqdm.tqdm(self.industry_choice.keys()):
             result_dict[industry] = {}
             for name in self.industry_choice[industry].keys():
                 path = self.read_dir + f'/{name}_add.csv'
@@ -72,7 +73,7 @@ class data_screen_class:
                 if np.max(change[-5:]) < self.change:
                     continue
                 # 5日线下方
-                if self.close_5 and mean_value[-1] > close_5[-1]:
+                if self.close_5 and mean_value[-1] < close_5[-1]:
                     continue
                 # 记录
                 result_dict[name] = self.industry_choice[industry][name]

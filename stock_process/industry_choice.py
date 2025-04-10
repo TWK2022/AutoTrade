@@ -7,15 +7,16 @@ import pandas as pd
 # 筛选出某个行业的股票
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|选择股票|')
-parser.add_argument('--industry', default='军工,医药,电力,社区团购,粮食概念,黄金概念,国产操作系统', type=str, help='|选择行业，如"A,B,C"|')
+parser.add_argument('--industry', default='军工,医药,电力,社区团购,黄金概念,国产操作系统,跨境支付,跨境电商', type=str, help='|选择行业，如"A,B,C"|')
 parser.add_argument('--stock_path', default='dataset/stock_all.yaml', type=str, help='|股票列表|')
 parser.add_argument('--read_dir', default='dataset/industry', type=str, help='|行业csv文件|')
 parser.add_argument('--save_path', default='dataset/industry_choice.yaml', type=str, help='|保存位置|')
 args_default = parser.parse_args()
 args_default.industry = args_default.industry.split(',')
-args_default.stock_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.stock_path
-args_default.read_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.read_dir
-args_default.save_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.save_path
+project_dir = os.path.dirname(os.path.dirname(__file__))
+args_default.stock_path = project_dir + '/' + args_default.stock_path
+args_default.read_dir = project_dir + '/' + args_default.read_dir
+args_default.save_path = project_dir + '/' + args_default.save_path
 
 
 # -------------------------------------------------------------------------------------------------------------------- #

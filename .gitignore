@@ -19,12 +19,8 @@ __pycache__
 *.trt
 *.onnx
 # -------------------------------------------------------------------------------------------------------------------- #
-economy/model.yaml
-economy/remove.yaml
-economy/data_screen.yaml
-economy/input_column.txt
-economy/tushare/number.yaml
-economy/tushare/reserve.yaml
+dataset/industry_choice.yaml
+dataset/industry_screen.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
 !ocr/ocr_model/**
 !dataset/industry/**
