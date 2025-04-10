@@ -73,10 +73,10 @@ class data_screen_class:
                 if np.max(change[-5:]) < self.change:
                     continue
                 # 5日线下方
-                if self.close_5 and mean_value[-1] < close_5[-1]:
+                if self.close_5 and mean_value[-1] > close_5[-1]:
                     continue
                 # 记录
-                result_dict[name] = self.industry_choice[industry][name]
+                result_dict[industry][name] = self.industry_choice[industry][name]
         # 保存
         with open(self.save_path, 'w', encoding='utf-8') as f:
             yaml.dump(result_dict, f, allow_unicode=True, sort_keys=False)
