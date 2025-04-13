@@ -16,7 +16,7 @@ else:
 # 运行条件：进入要添加到自定义板块中，再返回代码并运行
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|添加股票|')
-parser.add_argument('--industry', default='跨境电商', type=str, help='|要添加的行业|')
+parser.add_argument('--industry', default='存储芯片', type=str, help='|要添加的行业|')
 parser.add_argument('--read_path', default='dataset/industry_choice.yaml', type=str, help='|股票筛选结果|')
 args_default, _ = parser.parse_known_args()
 args_default.read_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.read_path

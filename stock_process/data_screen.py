@@ -10,7 +10,7 @@ import pandas as pd
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|筛选有上升潜力的股票|')
 parser.add_argument('--industry_choice', default='dataset/industry_choice.yaml', type=str, help='|待筛选股票|')
-parser.add_argument('--read_dir', default='dataset/stock_add', type=str, help='|股票数据|')
+parser.add_argument('--data_dir', default='dataset/stock_add', type=str, help='|股票数据|')
 parser.add_argument('--save_path', default='dataset/industry_screen.yaml', type=str, help='|保存位置|')
 parser.add_argument('--close_min', default=3, type=float, help='|价格>close_min|')
 parser.add_argument('--close_max', default=100, type=float, help='|价格<close_max|')
@@ -21,14 +21,14 @@ parser.add_argument('--close_5', default=True, type=bool, help='|5日线下方|'
 args_default = parser.parse_args()
 project_dir = os.path.dirname(os.path.dirname(__file__))
 args_default.industry_choice = project_dir + '/' + args_default.industry_choice
-args_default.read_dir = project_dir + '/' + args_default.read_dir
+args_default.data_dir = project_dir + '/' + args_default.data_dir
 args_default.save_path = project_dir + '/' + args_default.save_path
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
 class data_screen_class:
     def __init__(self, args=args_default):
-        self.read_dir = args.read_dir
+        self.data_dir = args.data_dir
         self.save_path = args.save_path
         self.close_min = args.close_min
         self.close_max = args.close_max
@@ -44,12 +44,11 @@ class data_screen_class:
         for industry in tqdm.tqdm(self.industry_choice.keys()):
             result_dict[industry] = {}
             for name in self.industry_choice[industry].keys():
-                path = self.read_dir + f'/{name}_add.csv'
+                path = self.data_dir + f'/{name}_add.csv'
                 if not os.path.exists(path):
                     print(f'! 文件不存在：{path} !')
                     continue
                 df = pd.read_csv(path, index_col=0)
-                df['均价'] = 0.5 * df['收盘价'] + 0.1 * df['开盘价'] + 0.2 * df['最高价'] + 0.2 * df['最低价']
                 close = df['收盘价'].values
                 market_value = df['总市值'].values
                 change = df['换手率'].values

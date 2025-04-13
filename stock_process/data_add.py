@@ -8,13 +8,13 @@ import pandas as pd
 
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|补充数据|')
-parser.add_argument('--industry_choice', default='/dataset/industry_choice.yaml', type=str, help='|选择股票|')
-parser.add_argument('--read_dir', default='/dataset/stock', type=str, help='|股票数据|')
-parser.add_argument('--save_dir', default='/dataset/stock_add', type=str, help='|保存位置|')
+parser.add_argument('--industry_choice', default='dataset/industry_choice.yaml', type=str, help='|选择股票|')
+parser.add_argument('--data_dir', default='dataset/stock', type=str, help='|股票数据|')
+parser.add_argument('--save_dir', default='dataset/stock_add', type=str, help='|保存位置|')
 args_default = parser.parse_args()
 project_dir = os.path.dirname(os.path.dirname(__file__))
 args_default.industry_choice = project_dir + '/' + args_default.industry_choice
-args_default.read_dir = project_dir + '/' + args_default.read_dir
+args_default.data_dir = project_dir + '/' + args_default.data_dir
 args_default.save_dir = project_dir + '/' + args_default.save_dir
 if not os.path.exists(args_default.save_dir):
     os.makedirs(args_default.save_dir)
@@ -23,7 +23,7 @@ if not os.path.exists(args_default.save_dir):
 # -------------------------------------------------------------------------------------------------------------------- #
 class data_add_class:
     def __init__(self, args=args_default):
-        self.read_dir = args.read_dir
+        self.data_dir = args.data_dir
         self.save_dir = args.save_dir
         with open(args.industry_choice, 'r', encoding='utf-8') as f:
             industry_choice = yaml.load(f, Loader=yaml.SafeLoader)
@@ -33,11 +33,11 @@ class data_add_class:
                 self.stock_dict[key] = industry_choice[industry][key]
 
     def data_add(self):
-        df = pd.read_csv(f'{os.path.dirname(self.read_dir)}/上证指数.csv')
+        df = pd.read_csv(f'{os.path.dirname(self.data_dir)}/上证指数.csv')
         shangzheng = df['上证指数'].values
         shangzheng_vol = df['上证成交量'].values
         for name in tqdm.tqdm(self.stock_dict.keys()):
-            path = f'{self.read_dir}/{name}.csv'
+            path = f'{self.data_dir}/{name}.csv'
             if not os.path.exists(path):
                 print(f'! 文件不存在：{path} !')
                 continue
@@ -50,7 +50,7 @@ class data_add_class:
             df['上证指数'] = shangzheng[-len(df):]
             df['上证成交量'] = shangzheng_vol[-len(df):]
             # 均价
-            df['均价'] = (df['开盘价'].values + df['收盘价'].values) / 2
+            df['均价'] = 0.4 * df['收盘价'].values + 0.3 * df['最高价'].values + 0.3 * df['最低价'].values
             # 计算指标
             df_count = pd.DataFrame(
                 df[['开盘价', '最高价', '最低价', '收盘价', '成交量', '上证指数', '上证成交量']].values,

@@ -12,12 +12,12 @@ import pandas as pd
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|tushare|')
 parser.add_argument('--token', default='', type=str, help='|密钥|')
-parser.add_argument('--save_dir', default='dataset', type=str, help='|项目根目录下的位置|')
-parser.add_argument('--industry_start', default=['885', '886'], type=list, help='|只记录industry_start开头的行业|')
-parser.add_argument('--code_start', default=['00', '60'], type=list, help='|只记录code_start开头的股票|')
-parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
+parser.add_argument('--save_dir', default='dataset', type=str, help='|数据根目录|')
+parser.add_argument('--industry_start', default=['885', '886'], type=list, help='|只记录x开头的行业|')
+parser.add_argument('--code_start', default=['00', '60'], type=list, help='|只记录x开头的股票|')
+parser.add_argument('--drop_st', default=True, type=bool, help='|去除ST股票|')
 parser.add_argument('--frequency', default=200, type=int, help='|API每分钟可以调取的频率|')
-parser.add_argument('--start_time', default='20180101', type=str, help='|获取股票数据的开始时间|')
+parser.add_argument('--start_time', default='20180101', type=str, help='|开始时间|')
 args_default, _ = parser.parse_known_args()
 args_default.end_time = str(datetime.datetime.now().date()).replace('-', '')  # 当天日期
 args_default.save_dir = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.save_dir
