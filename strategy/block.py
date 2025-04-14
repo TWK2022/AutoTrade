@@ -114,9 +114,10 @@ class block_class:
                     if close[index + 1] > close_10[index + 1]:  # 明日站上10日线
                         correct += 1
         result = round(correct / total, 2)
-        print(f'| {result} | 样本{total} |')
+        print(f'| bottom_rebound | {result} | 样本{total} |')
 
 
 if __name__ == '__main__':
     model = block_class()
     model.bottom_volume_count()
+    model.bottom_rebound(model.path_dir)
