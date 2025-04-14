@@ -27,5 +27,5 @@
   微信_任务栏: 'match_image/微信/微信_任务栏.png'
   监测: 'match_image/微信/监测.png'
 regex:
-  名称: '(\D+)\s?(\d+)'
+  名称: '[\u4e00-\u9fa5]+'
   macdfs: 'MACDFS:\s*([+-]\d\.\d{3})'

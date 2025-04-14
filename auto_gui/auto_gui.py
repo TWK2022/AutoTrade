@@ -14,7 +14,7 @@ else:
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# 功能：实时监测股票，及时提醒买卖点
+# 功能：实时监测行业，及时提醒买卖点
 # -------------------------------------------------------------------------------------------------------------------- #
 class auto_gui_class(block_class):
     def __init__(self):
@@ -77,6 +77,16 @@ class auto_gui_class(block_class):
         # 微信
         x, y, w, h = self.image_location(self.image_dict['微信']['微信_任务栏'], assert_=True)
         self.position['微信']['微信_任务栏'] = (x, y)
+        # 名称截图坐标
+        self.screenshot['名称'] = (int(0.685 * self.w), int(0.080 * self.h), int(0.120 * self.w), int(0.035 * self.h))
+        # macdfs截图坐标
+        self.screenshot['macdfs'] = (int(0.050 * self.w), int(0.559 * self.h), int(0.240 * self.w), int(0.019 * self.h))
+        # 上证指数macdfs截图坐标
+        self.screenshot['macdfs_上证'] = (int(0.057 * self.w), int(0.514 * self.h),
+                                        int(0.240 * self.w), int(0.019 * self.h))
+        # 行业指数macdfs截图坐标
+        self.screenshot['macdfs_行业'] = (int(0.057 * self.w), int(0.548 * self.h),
+                                        int(0.240 * self.w), int(0.019 * self.h))
 
     def auto_gui(self, time_interval=2):  # 实时监控
         '''
@@ -113,51 +123,39 @@ class auto_gui_class(block_class):
                 break
 
     def _get_data(self):  # 获取数据
-        # 名称截图坐标
-        x1 = int(0.685 * self.w)
-        y1 = int(0.081 * self.h)
-        # 名称截图长度
-        w1 = int(0.113 * self.w)
-        h1 = int(0.037 * self.h)
-        # macdfs截图坐标
-        x2 = int(0.0505 * self.w)
-        y2 = int(0.5583 * self.h)
-        # macdfs截图长度
-        w2 = int(0.2458 * self.w)
-        h2 = int(0.0194 * self.h)
         # 时间
         time_now = str(datetime.datetime.now().time())[:5]
         # 下翻位置
         x, y = self.position['首页']['下翻']
         pyautogui.moveTo(x, y, duration=0)
         # 名称
-        image1 = pyautogui.screenshot(region=(x1, y1, w1, h1))
-        name_str = self.ocr.ocr(image1)
-        search1 = self.regex['名称'].search(name_str)
-        if search1 is None:
+        image_name = pyautogui.screenshot(region=self.screenshot['名称'])
+        name_str = self.ocr.ocr(image_name)
+        search_name = self.regex['名称'].search(name_str)
+        if search_name is None:
             print(f'! {time_now} | 未检测到名称 !')
             pyautogui.click(button='left', clicks=1, interval=0)  # 点击下翻
             time.sleep(0.2)
             return None
-        name = search1.group(1)
+        name = search_name.group()
         if self.result.get(name) is None:
             self.result[name] = {'macdfs': [], 'macdfs峰值': 0.0}
         # macdfs
         if name == '上证指数':
-            image2 = pyautogui.screenshot(region=(int(0.057 * self.w), int(0.514 * self.h), w2, h2))
-        else:
-            image2 = pyautogui.screenshot(region=(x2, y2, w2, h2))
-        data_str = self.ocr.ocr(image2)
-        search2 = self.regex['macdfs'].search(data_str)
-        if search2 is None:
+            image_macdfs = pyautogui.screenshot(region=self.screenshot['macdfs_上证'])
+        elif True:  # 行业信息
+            image_macdfs = pyautogui.screenshot(region=self.screenshot['macdfs_行业'])
+        else:  # 个股信息
+            image_macdfs = pyautogui.screenshot(region=self.screenshot['macdfs'])
+        data_str = self.ocr.ocr(image_macdfs)
+        search_macdfs = self.regex['macdfs'].search(data_str)
+        if search_macdfs is None:
             print(f'! {time_now} | 未检测到数据：{name} !')
             pyautogui.click(button='left', clicks=1, interval=0)  # 点击下翻
             time.sleep(0.2)
             return None
-        macdfs = self.str_to_float(search2.group(1))
+        macdfs = self.str_to_float(search_macdfs.group(1))
         self.result[name]['macdfs'].append(macdfs)
-        # self.draw_image(image1)
-        # self.draw_image(image2)
         # 点击下翻
         pyautogui.click(button='left', clicks=1, interval=0)
         time.sleep(0.2)
