@@ -77,14 +77,14 @@ class auto_gui_class(block_class):
         # 微信
         x, y, w, h = self.image_location(self.image_dict['微信']['微信_任务栏'], assert_=True)
         self.position['微信']['微信_任务栏'] = (x, y)
-        # 名称截图坐标
+        # 名称截图
         self.screenshot['名称'] = (int(0.685 * self.w), int(0.080 * self.h), int(0.120 * self.w), int(0.035 * self.h))
-        # macdfs截图坐标
+        # macdfs截图
         self.screenshot['macdfs'] = (int(0.050 * self.w), int(0.559 * self.h), int(0.240 * self.w), int(0.019 * self.h))
-        # 上证指数macdfs截图坐标
+        # 上证指数macdfs截图
         self.screenshot['macdfs_上证'] = (int(0.057 * self.w), int(0.514 * self.h),
                                         int(0.240 * self.w), int(0.019 * self.h))
-        # 行业指数macdfs截图坐标
+        # 行业指数macdfs截图
         self.screenshot['macdfs_行业'] = (int(0.057 * self.w), int(0.548 * self.h),
                                         int(0.240 * self.w), int(0.019 * self.h))
 
