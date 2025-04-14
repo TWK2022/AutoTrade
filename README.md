@@ -16,13 +16,13 @@
 >根据"dataset/industry_choice.yaml"和"dataset/stock"补全股票数据：dataset/stock_add
 ### stock_process/data_screen.py
 >根据"dataset/industry_choice.yaml"和"dataset/stock_add"用规则筛选股票：dataset/industry_screen.yaml
-### model_predict/model_predict.py
->根据"dataset/industry_screen.yaml"和"dataset/stock_add"训练模型筛选股票：dataset/model_predict.yaml
+### predict/predict.py
+>根据"dataset/industry_screen.yaml"和"dataset/stock_add"训练模型筛选股票：dataset/simulate.yaml、dataset/predict.yaml
 ### auto_gui/ths_add.py
 >根据"dataset/industry_choice.yaml"批量添加股票到同花顺板块中  
 >频率：初始添加一次，之后可以手动增删股票
 ### auto_gui/auto_gui.py
->根据"dataset/industry_choice.yaml"批量添加股票到同花顺板块中
+>实时监测
 ### 其他
 >github链接：https://github.com/TWK2022/notebook  
 >邮箱：1024565378@qq.com

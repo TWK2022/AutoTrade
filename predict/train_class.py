@@ -232,13 +232,14 @@ class train_class:
                 self.model_dict['val_rmse'] = rmse
                 self.model_dict['mean_special'] = self.data_dict['mean_special']
                 self.model_dict['std_special'] = self.data_dict['std_special']
-                torch.save(self.model_dict, 'last.pt')  # 保存最后一次训练的模型
+                if epoch % args.save_epoch == 0 or epoch == args.epoch:
+                    torch.save(self.model_dict, args.save_path)  # 保存模型
                 if val_loss < 1 and val_loss < self.model_dict['standard']:
                     self.model_dict['standard'] = val_loss
-                    torch.save(self.model_dict, args.save_path)  # 保存最佳模型
+                    torch.save(self.model_dict, args.save_best)  # 保存最佳模型
                     if args.local_rank == 0:  # 日志
-                        info = (f'| best_model:{args.save_path} | val_loss:{val_loss:.4f} | val_mae:{mae:.4f} |'
-                                f' val_rmse:{rmse:.4f} |')
+                        info = (f'| best_model | val_loss:{val_loss:.4f} | val_mae:{mae:.4f} |'
+                                f' val_rmse:{rmse:.4f} | {args.save_best} |')
                         if args.print_info:
                             print(info)
                         if args.log:
@@ -276,8 +277,6 @@ class train_class:
             info = f'| val | all | val_loss:{val_loss:.4f} | val_mae:{mae:.4f} | val_rmse:{rmse:.4f} |'
             if args.print_info:
                 print(info)
-            if args.log:
-                logging.info(info)
             # 计算各类别相对指标和真实指标
             for i in range(pred.shape[1]):
                 column = args.output_column[i]

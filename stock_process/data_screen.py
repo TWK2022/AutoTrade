@@ -53,6 +53,7 @@ class data_screen_class:
                 market_value = df['总市值'].values
                 change = df['换手率'].values
                 close_5 = df['收盘价_SMA_5'].values
+                close_10 = df['收盘价_SMA_10'].values
                 mean_value = df['均价']
                 # 检查是否存在nan值
                 if np.isnan(df.values).any():
@@ -71,8 +72,8 @@ class data_screen_class:
                 # 换手率筛选
                 if np.max(change[-5:]) < self.change:
                     continue
-                # 5日线下方
-                if self.close_5 and mean_value[-1] > close_5[-1]:
+                # 5/10日线下方
+                if self.close_5 and (mean_value[-1] > close_5[-1] or mean_value[-1] > close_10[-1]):
                     continue
                 # 记录
                 result_dict[industry][name] = self.industry_choice[industry][name]

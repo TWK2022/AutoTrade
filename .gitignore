@@ -21,11 +21,12 @@ __pycache__
 # -------------------------------------------------------------------------------------------------------------------- #
 dataset/industry_choice.yaml
 dataset/industry_screen.yaml
-dataset/model_predict.yaml
+dataset/simulate.yaml
+dataset/predict.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
 !ocr/ocr_model/**
 !dataset/industry/**
 !auto_gui/match_image/**
 !ocr/image/demo.png
-!model_predict/input_column.txt
-!model_predict/output_column.txt
+!predict/input_column.txt
+!predict/output_column.txt
