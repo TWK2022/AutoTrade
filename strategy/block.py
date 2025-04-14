@@ -29,6 +29,7 @@ class block_class:
     @staticmethod
     def bottom_volume(df, scale=1.5):
         value = df['均价'].values
+        close = df['收盘价'].values
         close_5 = df['收盘价_EMA_5'].values
         volume = df['成交量'].values
         all_dict = {_: 0 for _ in range(5)}
@@ -36,50 +37,50 @@ class block_class:
         cross_dict = {_: 0 for _ in range(5)}
         for index in range(5, len(df) - 2):
             # 昨日在5日线下方，今日成交量放大，持续放量(129)
-            if value[index - 1] < close_5[index - 1] and scale * volume[index - 1] < volume[index]:
+            if close[index - 1] < close_5[index - 1] and scale * volume[index - 1] < volume[index]:
                 if volume[index - 1] > volume[index - 2]:
                     all_dict[0] += 1
-                    if value[index] > value[index - 1] or value[index + 1] > value[index]:  # 今/明日上涨
+                    if value[index] > close[index - 1] or value[index + 1] > value[index]:  # 今/明日上涨
                         correct_dict[0] += 1
                     if value[index + 1] > close_5[index + 1]:  # 上穿5日线
                         cross_dict[0] += 1
                 # 缩量1日(1219)
                 date = 1
-                if (value[index - date - 1] < close_5[index - date - 1]
+                if (close[index - date - 1] < close_5[index - date - 1]
                         and volume[index - date] < volume[index - date - 1]):
                     if volume[index - date - 1] > volume[index - date - 2]:
                         all_dict[date] += 1
-                        if value[index] > value[index - 1] or value[index + 1] > value[index]:
+                        if value[index] > close[index - 1] or value[index + 1] > value[index]:
                             correct_dict[date] += 1
                         if value[index + 1] > close_5[index + 1]:
                             cross_dict[date] += 1
                     # 缩量2日(23219)
                     date = 2
-                    if (value[index - date - 1] < close_5[index - date - 1]
+                    if (close[index - date - 1] < close_5[index - date - 1]
                             and volume[index - date] < volume[index - date - 1]):
                         if volume[index - date - 1] > volume[index - date - 2]:
                             all_dict[date] += 1
-                            if value[index] > value[index - 1] or value[index + 1] > value[index]:
+                            if value[index] > close[index - 1] or value[index + 1] > value[index]:
                                 correct_dict[date] += 1
                             if value[index + 1] > close_5[index + 1]:
                                 cross_dict[date] += 1
                         # 缩量3日(343219)
                         date = 3
-                        if (value[index - date - 1] < close_5[index - date - 1]
+                        if (close[index - date - 1] < close_5[index - date - 1]
                                 and volume[index - date] < volume[index - date - 1]):
                             if volume[index - date - 1] > volume[index - date - 2]:
                                 all_dict[date] += 1
-                                if value[index] > value[index - 1] or value[index + 1] > value[index]:
+                                if value[index] > close[index - 1] or value[index + 1] > value[index]:
                                     correct_dict[date] += 1
                                 if value[index + 1] > close_5[index + 1]:
                                     cross_dict[date] += 1
                             # 缩量4日(4543219)
                             date = 4
-                            if (value[index - date - 1] < close_5[index - date - 1]
+                            if (close[index - date - 1] < close_5[index - date - 1]
                                     and volume[index - date] < volume[index - date - 1]):
                                 if volume[index - date - 1] > volume[index - date - 2]:
                                     all_dict[date] += 1
-                                    if value[index] > value[index - 1] or value[index + 1] > value[index]:
+                                    if value[index] > close[index - 1] or value[index + 1] > value[index]:
                                         correct_dict[date] += 1
                                     if value[index + 1] > close_5[index + 1]:
                                         cross_dict[date] += 1
@@ -87,7 +88,7 @@ class block_class:
         index = []
         for date in correct_dict.keys():
             value.append([all_dict[date], correct_dict[date] / (all_dict[date] + 1e-6),
-                         cross_dict[date] / (all_dict[date] + 1e-6)])
+                          cross_dict[date] / (all_dict[date] + 1e-6)])
             index.append(f'缩量{date}日')
         column = ['总次数', '上涨', '上穿5日线']
         df = pd.DataFrame(value, columns=column, index=index)

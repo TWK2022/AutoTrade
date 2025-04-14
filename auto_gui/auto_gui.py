@@ -105,6 +105,7 @@ class auto_gui_class(block_class):
                 time.sleep((self.time_start - time_now).total_seconds())
             # 中午前
             elif time_now < self.time_afternoon_open:
+                break
                 time.sleep((self.time_afternoon_open - time_now).total_seconds())
             # 收盘后
             else:
