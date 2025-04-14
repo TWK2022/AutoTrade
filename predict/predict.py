@@ -16,7 +16,7 @@ from train_class import train_class
 # master_port为GPU之间的通讯端口，空闲的即可。n为GPU数量
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|股票预测|')
-parser.add_argument('--train_again', default=False, type=bool, help='|继续训练新数据|')
+parser.add_argument('--train_again', default=True, type=bool, help='|继续训练新数据|')
 parser.add_argument('--simulate', default=True, type=str, help='|回测股票|')
 parser.add_argument('--industry_screen', default='dataset/industry_screen.yaml', type=str, help='|筛选数据|')
 parser.add_argument('--data_dir', default='dataset/stock_add', type=str, help='|股票数据|')
@@ -61,6 +61,7 @@ parser.add_argument('--local_rank', default=0, type=int, help='|分布式训练�
 args = parser.parse_args()
 project_dir = os.path.dirname(os.path.dirname(__file__))
 args.industry_screen = project_dir + '/' + args.industry_screen
+args.simulate_save_path = project_dir + '/' + args.simulate_save_path
 args.predict_save_path = project_dir + '/' + args.predict_save_path
 args.data_dir = project_dir + '/' + args.data_dir
 args.save_dir = project_dir + '/' + args.save_dir

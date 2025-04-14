@@ -17,7 +17,7 @@ parser.add_argument('--close_max', default=100, type=float, help='|价格<close_
 parser.add_argument('--market_value_min', default=50, type=float, help='|总市值(亿)>market_value_min|')
 parser.add_argument('--market_value_max', default=1000, type=float, help='|总市值(亿)<market_value_max|')
 parser.add_argument('--change', default=3, type=float, help='|近期最大换手率>change|')
-parser.add_argument('--close_5', default=True, type=bool, help='|5日线下方|')
+parser.add_argument('--date_line', default=True, type=bool, help='|日线筛选|')
 args_default = parser.parse_args()
 project_dir = os.path.dirname(os.path.dirname(__file__))
 args_default.industry_choice = project_dir + '/' + args_default.industry_choice
@@ -35,7 +35,7 @@ class data_screen_class:
         self.market_value_min = args.market_value_min
         self.market_value_max = args.market_value_max
         self.change = args.change
-        self.close_5 = args.close_5
+        self.date_line = args.date_line
         with open(args.industry_choice, 'r', encoding='utf-8') as f:
             self.industry_choice = yaml.load(f, Loader=yaml.SafeLoader)
 
@@ -72,8 +72,8 @@ class data_screen_class:
                 # 换手率筛选
                 if np.max(change[-5:]) < self.change:
                     continue
-                # 5/10日线下方
-                if self.close_5 and (mean_value[-1] > close_5[-1] or mean_value[-1] > close_10[-1]):
+                # 日线筛选
+                if self.date_line and (mean_value[-1] > close_5[-1] and mean_value[-1] > close_10[-1]):
                     continue
                 # 记录
                 result_dict[industry][name] = self.industry_choice[industry][name]
