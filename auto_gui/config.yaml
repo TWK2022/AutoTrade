@@ -28,4 +28,5 @@
   监测: 'match_image/微信/监测.png'
 regex:
   名称: '[\u4e00-\u9fa5]+'
+  名称和代码: '([\u4e00-\u9fa5]+).*?(\d{6})'
   macdfs: 'MACDFS:\s*([+-]\d\.\d{3})'

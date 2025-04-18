@@ -72,8 +72,8 @@ class ths_information_class(block_class):
             x, y, w, h = (int(0.448 * self.w), int(0.083 * self.h), int(0.114 * self.w), int(0.032 * self.h))
             image1 = pyautogui.screenshot(region=(x, y, w, h))
             name_str = self.ocr.ocr(image1)
-            search1 = self.regex['名称'].search(name_str)
-            name = search1.group(1).strip()
+            search1 = self.regex['名称和代码'].search(name_str)
+            name = search1.group(1)
             code = search1.group(2)
             if name and self.result.get(name) is not None:  # 循环了一轮
                 print('| 提前结束 | 循环了一轮 |')
