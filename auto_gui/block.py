@@ -28,8 +28,8 @@ class block_class:
         # 屏幕大小
         self.w, self.h = pyautogui.size()
         # 坐标
-        self.position = {}  # 中心坐标：{name1:{name2:(x,y)}}
-        self.screenshot = {}  # 截图坐标：{name1:{name2:(x1,y1,w,h)}}
+        self.position = {}  # 中心坐标:{name1:{name2:(x,y)}}
+        self.screenshot = {}  # 截图坐标:{name1:{name2:(x1,y1,w,h)}}
         for key in os.listdir(f'{dir_path}/match_image'):
             self.position[key] = {}
             self.screenshot[key] = {}

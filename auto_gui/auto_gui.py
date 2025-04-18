@@ -14,7 +14,7 @@ else:
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# 功能：实时监测行业，及时提醒买卖点
+# 功能:实时监测行业，及时提醒买卖点
 # -------------------------------------------------------------------------------------------------------------------- #
 class auto_gui_class(block_class):
     def __init__(self):
@@ -108,7 +108,7 @@ class auto_gui_class(block_class):
                 self._analysis(name=name)
                 # 间隔
                 end_time = time.time()
-                # print(f'|时间：{end_time - start_time:.4f}|')
+                # print(f'|时间:{end_time - start_time:.4f}|')
                 time.sleep(max(time_interval - (end_time - start_time), 0))
             # 早上前
             elif time_now < self.time_start:
@@ -119,7 +119,7 @@ class auto_gui_class(block_class):
                 time.sleep((self.time_afternoon_open - time_now).total_seconds())
             # 收盘后
             else:
-                print('! 结束：已收盘 !')
+                print('! 结束:已收盘 !')
                 break
 
     def _get_data(self):  # 获取数据
@@ -150,7 +150,7 @@ class auto_gui_class(block_class):
         data_str = self.ocr.ocr(image_macdfs)
         search_macdfs = self.regex['macdfs'].search(data_str)
         if search_macdfs is None:
-            print(f'! {time_now} | 未检测到数据：{name} !')
+            print(f'! {time_now} | 未检测到数据:{name} !')
             pyautogui.click(button='left', clicks=1, interval=0)  # 点击下翻
             time.sleep(0.2)
             return None
