@@ -18,7 +18,7 @@ else:
 parser = argparse.ArgumentParser(description='|添加股票|')
 parser.add_argument('--industry', default='', type=str, help='|要添加的行业，为空时添加predict.yaml|')
 parser.add_argument('--industry_path', default='dataset/industry_choice.yaml', type=str, help='|股票筛选结果|')
-parser.add_argument('--predict_path', default='dataset/predict.yaml', type=str, help='|股票筛选结果|')
+parser.add_argument('d--predict_path', default='dataset/predict.yaml', type=str, help='|股票筛选结果|')
 args_default, _ = parser.parse_known_args()
 args_default.industry_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.industry_path
 args_default.predict_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.predict_path
