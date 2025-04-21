@@ -20,7 +20,7 @@ __pycache__
 *.onnx
 # -------------------------------------------------------------------------------------------------------------------- #
 dataset/industry_choice.yaml
-dataset/industry_screen.yaml
+dataset/data_screen.yaml
 dataset/simulate.yaml
 dataset/predict.yaml
 # -------------------------------------------------------------------------------------------------------------------- #
