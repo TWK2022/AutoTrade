@@ -16,7 +16,7 @@ else:
 # 运行条件:进入要添加到自定义板块中，再返回代码并运行
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|添加股票|')
-parser.add_argument('--industry', default='', type=str, help='|要添加的行业，为空时添加predict.yaml|')
+parser.add_argument('--industry', default='低空经济', type=str, help='|要添加的行业，为空时添加predict.yaml|')
 parser.add_argument('--industry_path', default='dataset/industry_choice.yaml', type=str, help='|股票筛选结果|')
 parser.add_argument('--predict_path', default='dataset/predict.yaml', type=str, help='|股票筛选结果|')
 args_default, _ = parser.parse_known_args()

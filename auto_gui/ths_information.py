@@ -19,7 +19,7 @@ else:
 # 如:结合以下信息和你的知识库，筛选出与A行业最不相关、或核心业务占比最少的股票M-N支左右，结果只需要给出名称：
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|收集信息|')
-parser.add_argument('--number', default=200, type=int, help='|收集股票上限|')
+parser.add_argument('--number', default=100, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
 parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
 parser.add_argument('--save_path', default='information.csv', type=str, help='|保存位置|')
@@ -73,6 +73,9 @@ class ths_information_class(block_class):
             image1 = pyautogui.screenshot(region=(x, y, w, h))
             name_str = self.ocr.ocr(image1)
             search1 = self.regex['名称和代码'].search(name_str)
+            if search1 is None:  # 没有检测到
+                pyautogui.click(button='left', clicks=1, interval=0)  # 下一页
+                continue
             name = search1.group(1)
             code = search1.group(2)
             if name and self.result.get(name) is not None:  # 循环了一轮
