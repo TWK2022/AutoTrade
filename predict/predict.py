@@ -121,9 +121,9 @@ class predict_class:
                     continue
                 # 继续训练
                 args.weight_path = weight_path
-                args.epoch = 30
+                args.epoch = 50
                 args.lr_start = self.lr_start_default * 0.2
-                args.lr_end_epoch = 30
+                args.lr_end_epoch = 50
             else:  # 正常训练
                 args.weight_path = weight_path
                 args.epoch = self.epoch_default
