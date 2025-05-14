@@ -5,6 +5,7 @@ import yaml
 import argparse
 import pyperclip
 import pyautogui
+import pandas as pd
 
 if os.getcwd() == os.path.realpath(os.path.dirname(__file__)):  # 当前目录下运行
     from block import block_class
@@ -16,21 +17,20 @@ else:
 # 运行条件:进入要添加到自定义板块中，再返回代码并运行
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|添加股票|')
-parser.add_argument('--industry', default='', type=str, help='|要添加的行业，为空时添加predict.yaml|')
-parser.add_argument('--industry_path', default='dataset/industry_choice.yaml', type=str, help='|股票筛选结果|')
+parser.add_argument('--industry', default='互联网金融', type=str, help='|要添加的行业，为空时添加predict.yaml|')
 parser.add_argument('--predict_path', default='dataset/predict.yaml', type=str, help='|股票筛选结果|')
 args_default, _ = parser.parse_known_args()
-args_default.industry_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.industry_path
-args_default.predict_path = os.path.dirname(os.path.dirname(__file__)) + '/' + args_default.predict_path
+project_dir = os.path.dirname(os.path.dirname(__file__))
+args_default.industry = project_dir + f'/dataset/industry/{args_default.industry}.csv'
+args_default.predict_path = project_dir + '/' + args_default.predict_path
 
 
 class ths_add_class(block_class):
     def __init__(self, args=args_default):
         super().__init__()
         if args.industry:
-            with open(args.industry_path, 'r', encoding='utf-8') as f:
-                self.stock_dict = yaml.load(f, Loader=yaml.SafeLoader)
-            self.name_all = list(self.stock_dict[args.industry].keys())[::-1]
+            df = pd.read_csv(args.industry)
+            self.name_all = df['股票'].values[::-1]
         else:
             with open(args.predict_path, 'r', encoding='utf-8') as f:
                 self.stock_dict = yaml.load(f, Loader=yaml.SafeLoader)
@@ -38,7 +38,7 @@ class ths_add_class(block_class):
             for industry in self.stock_dict.keys():
                 self.name_all.extend(list(self.stock_dict[industry].keys()))
             self.name_all = self.name_all[::-1]
-            # 文字检测模型
+        # 文字中科金财检测模型
         self.ocr = ocr.ocr.ocr_class()
         # 回到桌面
         pyautogui.hotkey('win', 'd')

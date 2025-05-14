@@ -19,12 +19,14 @@ else:
 # 如:结合以下信息和你的知识库，筛选出与A行业最不相关、或核心业务占比最少的股票M-N支左右，结果只需要给出名称：
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|收集信息|')
-parser.add_argument('--number', default=100, type=int, help='|收集股票上限|')
+parser.add_argument('--number', default=1000, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
 parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
+parser.add_argument('--keep_path', default='', type=str, help='|存在时只保留其中的数据|')
 parser.add_argument('--save_path', default='information.csv', type=str, help='|保存位置|')
 args_default, _ = parser.parse_known_args()
 save_dir = os.path.dirname(os.path.dirname(__file__)) + '/dataset/industry/'
+args_default.keep_path = save_dir + args_default.keep_path
 args_default.save_path = save_dir + args_default.save_path
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
@@ -37,6 +39,11 @@ class ths_information_class(block_class):
         self.screen = args.screen
         self.drop_st = args.drop_st
         self.save_path = args.save_path
+        if os.path.exists(args.keep_path) and '.csv' in args.keep_path:
+            df = pd.read_csv(args.keep_path)
+            self.name_all = df['股票'].values
+        else:
+            self.name_all = None
         # 文字检测模型
         self.ocr = ocr.ocr.ocr_class()
         # 结果
@@ -52,14 +59,22 @@ class ths_information_class(block_class):
         # 下一个股
         x, y, w, h = self.image_location(self.image_dict['信息']['下一个股'], assert_=True)
         self.position['信息']['下一个股'] = (x, y)
-        # 公司亮点
-        x, y, w, h = self.image_location(self.image_dict['信息']['公司亮点'], assert_=True)
-        self.position['信息']['公司亮点'] = (x, y)
-        self.screenshot['信息']['公司亮点'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
         # 主营业务
         x, y, w, h = self.image_location(self.image_dict['信息']['主营业务'], assert_=True)
         self.position['信息']['主营业务'] = (x, y)
-        self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.55 * self.w) // 2), h)
+        self.screenshot['信息']['主营业务'] = (x + w // 2, y - h // 2, int((0.62 * self.w) // 2), h)
+        # 公司亮点
+        x, y, w, h = self.image_location(self.image_dict['信息']['公司亮点'], assert_=True)
+        self.position['信息']['公司亮点'] = (x, y)
+        self.screenshot['信息']['公司亮点'] = (x + w // 2, y - h // 2, int((0.62 * self.w) // 2), h)
+        # 概念贴合度排名
+        x, y, w, h = self.image_location(self.image_dict['信息']['概念贴合度排名'], assert_=True)
+        self.position['信息']['概念贴合度排名'] = (x, y)
+        self.screenshot['信息']['概念贴合度排名'] = (x + w // 2, y - h // 2, int((0.62 * self.w) // 2), h)
+        # 所属申万行业
+        x, y, w, h = self.image_location(self.image_dict['信息']['所属申万行业'], assert_=True)
+        self.position['信息']['所属申万行业'] = (x, y)
+        self.screenshot['信息']['所属申万行业'] = (x + w // 2, y - h // 2, int((0.1 * self.w) // 2), h)
 
     def ths_information(self):  # 获取股票的公司信息
         for _ in tqdm.tqdm(range(self.number)):
@@ -78,6 +93,9 @@ class ths_information_class(block_class):
                 continue
             name = search1.group(1)
             code = search1.group(2)
+            if self.name_all is not None and name not in self.name_all:  # 只更新数据
+                pyautogui.click(button='left', clicks=1, interval=0)  # 下一页
+                continue
             if name and self.result.get(name) is not None:  # 循环了一轮
                 print('| 提前结束 | 循环了一轮 |')
                 break
@@ -90,42 +108,28 @@ class ths_information_class(block_class):
             # 截图
             image = np.array(pyautogui.screenshot())
             self.result[name] = {}
-            # 公司亮点
-            x, y, w, h = self.screenshot['信息']['公司亮点']
-            self.result[name]['公司亮点'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 主营业务
             x, y, w, h = self.screenshot['信息']['主营业务']
             self.result[name]['主营业务'] = self.ocr.ocr(image[y:y + h, x:x + w])
-            # 收入
-            x, y, w, h = self.image_location(self.image_dict['信息']['收入'], confidence=0.75)
-            if x is None:  # 未检测到
-                self.result[name]['收入'] = 'None'
-            else:
-                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
-                self.result[name]['收入'] = self.ocr.ocr(image[y:y + h, x:x + w])
-            # 净利润
-            x, y, w, h = self.image_location(self.image_dict['信息']['净利润'], confidence=0.75)
-            if x is None:  # 未检测到
-                self.result[name]['净利润'] = 'None'
-            else:
-                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
-                self.result[name]['净利润'] = self.ocr.ocr(image[y:y + h, x:x + w])
-            # 毛利率
-            x, y, w, h = self.image_location(self.image_dict['信息']['毛利率'], confidence=0.75)
-            if x is None:  # 未检测到
-                self.result[name]['毛利率'] = 'None'
-            else:
-                x, y, w, h = (x + w // 2, y - h // 2, int((0.3 * self.w) // 2), h)
-                self.result[name]['毛利率'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 公司亮点
+            x, y, w, h = self.screenshot['信息']['公司亮点']
+            self.result[name]['公司亮点'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 概念贴合度排名
+            x, y, w, h = self.screenshot['信息']['概念贴合度排名']
+            self.result[name]['概念贴合度排名'] = self.ocr.ocr(image[y:y + h, x:x + w])
+            # 所属申万行业
+            x, y, w, h = self.screenshot['信息']['所属申万行业']
+            self.result[name]['所属申万行业'] = self.ocr.ocr(image[y:y + h, x:x + w])
             # 下一页
             pyautogui.click(button='left', clicks=1, interval=0)
         # 记录
         line_all = []
         for name in self.result.keys():
-            line_all.append([name, '公司亮点：' + self.result[name]['公司亮点'],
-                             '主营业务：' + self.result[name]['主营业务'], '收入：' + self.result[name]['收入'],
-                             '净利润：' + self.result[name]['净利润'], '毛利率：' + self.result[name]['毛利率']])
-        column = ['股票', '公司亮点', '主营业务', '收入', '净利润', '毛利率']
+            line_all.append([name, '主营业务：' + self.result[name]['主营业务'],
+                             '公司亮点：' + self.result[name]['公司亮点'],
+                             '概念贴合度排名：' + self.result[name]['概念贴合度排名'],
+                             '所属申万行业：' + self.result[name]['所属申万行业']])
+        column = ['股票', '主营业务', '公司亮点', '概念贴合度排名', '所属申万行业']
         df = pd.DataFrame(line_all, columns=column)
         df.to_csv(self.save_path, index=False)
 

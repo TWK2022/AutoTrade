@@ -18,11 +18,10 @@
   关闭添加: 'match_image/自选/关闭添加.png'
 信息:
   下一个股: 'match_image/信息/下一个股.png'
-  公司亮点: 'match_image/信息/公司亮点.png'
   主营业务: 'match_image/信息/主营业务.png'
-  收入: 'match_image/信息/收入.png'
-  净利润: 'match_image/信息/净利润.png'
-  毛利率: 'match_image/信息/毛利率.png'
+  公司亮点: 'match_image/信息/公司亮点.png'
+  所属申万行业: 'match_image/信息/所属申万行业.png'
+  概念贴合度排名: 'match_image/信息/概念贴合度排名.png'
 微信:
   微信_任务栏: 'match_image/微信/微信_任务栏.png'
   监测: 'match_image/微信/监测.png'
