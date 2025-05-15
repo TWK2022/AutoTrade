@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='|收集信息|')
 parser.add_argument('--number', default=1000, type=int, help='|收集股票上限|')
 parser.add_argument('--screen', default=['00', '60'], type=list, help='|保留的股票开头|')
 parser.add_argument('--drop_st', default=True, type=bool, help='|是否去除ST股票|')
-parser.add_argument('--keep_path', default='', type=str, help='|存在时只保留其中的数据|')
+parser.add_argument('--keep_path', default='社区团购.csv', type=str, help='|存在时只保留其中的数据|')
 parser.add_argument('--save_path', default='information.csv', type=str, help='|保存位置|')
 args_default, _ = parser.parse_known_args()
 save_dir = os.path.dirname(os.path.dirname(__file__)) + '/dataset/industry/'
@@ -82,7 +82,7 @@ class ths_information_class(block_class):
             x, y = self.position['信息']['下一个股']
             pyautogui.moveTo(x, y, duration=0)
             # 等待页面刷新
-            time.sleep(0.2)
+            time.sleep(0.3)
             # 名称
             x, y, w, h = (int(0.448 * self.w), int(0.083 * self.h), int(0.114 * self.w), int(0.032 * self.h))
             image1 = pyautogui.screenshot(region=(x, y, w, h))
@@ -132,6 +132,11 @@ class ths_information_class(block_class):
         column = ['股票', '主营业务', '公司亮点', '概念贴合度排名', '所属申万行业']
         df = pd.DataFrame(line_all, columns=column)
         df.to_csv(self.save_path, index=False)
+        if self.name_all is not None:  # 未更新的股票
+            name_all = set(self.name_all)
+            result_name = set(list(self.result.keys()))
+            distance = list(name_all - result_name)
+            print(f'未更新的股票:{distance}')
 
 
 if __name__ == '__main__':
